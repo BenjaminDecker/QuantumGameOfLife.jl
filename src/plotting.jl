@@ -1,6 +1,7 @@
 using ITensors
 using PyPlot
 using SplitApplyCombine
+using DefaultApplication
 
 struct LabeledPlot
     label::String
@@ -46,8 +47,9 @@ function plot_results(; continuous_plots::Vector{LabeledPlot}, discrete_plots::V
 
     axs[end].set_xlabel("time steps")
     for suffix in file_formats
-        savefig("$(path).$(suffix)", bbox_inches="tight")
+        file_path = "$(path).$(suffix)"
+        savefig(file_path, bbox_inches="tight")
+        DefaultApplication.open(file_path)
     end
-    PyPlot.close()
     nothing
 end

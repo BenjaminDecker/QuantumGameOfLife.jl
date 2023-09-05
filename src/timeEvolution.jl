@@ -13,9 +13,10 @@ end
 
 function evolve(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64)
     @disable_warn_order U_tensor = let
-        println("Calculating Time Evolution Operator...")
+        print("Calculating Time Evolution Operator...")
         t = step_size * pi / 2
         exp(-im * contract(H_mpo) * t)
     end
+    println("done")
     return evolve(U_tensor, psi_0_mps, num_steps)
 end
