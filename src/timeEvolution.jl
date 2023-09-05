@@ -1,0 +1,21 @@
+using ITensors
+using ProgressMeter
+
+function evolve(U_tensor::ITensor, psi_0_mps::MPS, num_steps::Int)
+    results = [psi_0_mps]
+    psi_tensor = contract(psi_0_mps)
+    @showprogress "Calculating Time Evolution..." for _ in 2:num_steps
+        psi_tensor = noprime(U_tensor * psi_tensor)
+        push!(results, MPS(psi_tensor, siteinds(psi_0_mps)))
+    end
+    return results
+end
+
+function evolve(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64)
+    @disable_warn_order U_tensor = let
+        println("Calculating Time Evolution Operator...")
+        t = step_size * pi / 2
+        exp(-im * contract(H_mpo) * t)
+    end
+    return evolve(U_tensor, psi_0_mps, num_steps)
+end
