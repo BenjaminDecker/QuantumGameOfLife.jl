@@ -2,7 +2,9 @@ module QuantumGameOfLife
 
 using ITensors
 
+include("utils.jl")
 include("constants.jl")
+include("fragmentationAnalysis.jl")
 include("Parser.jl")
 include("InitialStates.jl")
 include("HamiltonianMpoCreator.jl")
@@ -45,14 +47,27 @@ function start(args::Dict{Symbol,Any})
         if args[:plot_bond_dims]
             push!(planned_measurements, BondDimensions())
         end
+        if args[:plot_cbe]
+            push!(planned_measurements, CenterBipartiteEntropy())
+        end
         measurements = measure(results, planned_measurements)
 
         file_name = "$(state)$(args[:num_cells])_$(args[:distance])$(args[:activation_interval][1])$(args[:activation_interval][2])"
-        continuous_measurements = filter(x -> haskey(measurements, x()), subtypes(Continuous))
-        discrete_measurements = filter(x -> haskey(measurements, x()), subtypes(Discrete))
-        continuous_plots = map(x -> LabeledPlot(PlotLabels[x()], measurements[x()]), continuous_measurements)
-        discrete_plots = map(x -> LabeledPlot(PlotLabels[x()], measurements[x()]), discrete_measurements)
-        plot_results(continuous_plots=continuous_plots, discrete_plots=discrete_plots, path="plots/$(file_name)", file_formats=args[:file_formats])
+        heatmap_continuous_measurements = filter(x -> haskey(measurements, x()), subtypes(HeatmapContinuous))
+        heatmap_discrete_measurements = filter(x -> haskey(measurements, x()), subtypes(HeatmapDiscrete))
+        line_plot_measurements = filter(x -> haskey(measurements, x()), subtypes(LinePlot))
+        heatmaps_continuous = map(x -> LabeledPlot(PlotLabels[x()], measurements[x()]), heatmap_continuous_measurements)
+        heatmaps_discrete = map(x -> LabeledPlot(PlotLabels[x()], measurements[x()]), heatmap_discrete_measurements)
+        line_plots = map(x -> LabeledPlot(PlotLabels[x()], measurements[x()]), line_plot_measurements)
+        plot_results(
+            heatmaps_continuous=heatmaps_continuous,
+            heatmaps_discrete=heatmaps_discrete,
+            line_plots=line_plots,
+            path="plots/$(file_name)",
+            file_formats=args[:file_formats]
+        )
+
+        # eigvals, center_bipartite_entropy = eigval_vs_entropy(H_mpo)
     end
 end
 end

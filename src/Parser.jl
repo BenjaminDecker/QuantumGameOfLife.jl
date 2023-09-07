@@ -103,6 +103,10 @@ add_arg_group!(s, "Plot")
     action = :store_true
     help = "Plot a rounded version of the probability"
 
+    "--plot-cbe"
+    action = :store_true
+    help = "Plot the center bipartite entropy"
+
     "--show"
     action = :store_true
     help = "Show the plots after finishing"

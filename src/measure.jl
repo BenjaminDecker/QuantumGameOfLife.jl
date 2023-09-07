@@ -21,6 +21,11 @@ function measure(state::MPS, measurement_type::SingleSiteEntropy)
     return sse
 end
 
+function measure(state::MPS, measurement_type::CenterBipartiteEntropy)
+    site_inds = siteinds(state)
+    Vector{Float64}([center_bipartite_entropy(state)])
+end
+
 function measure(states::Vector{MPS}, measurements_types::Set{MeasurementType})
     measurements = Dict{MeasurementType,Vector{Vector{Float64}}}()
     @showprogress "Measuring..." for state in states

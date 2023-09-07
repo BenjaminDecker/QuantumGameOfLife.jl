@@ -1,4 +1,4 @@
-# QuantumGameOfLife
+# QuantumGameOfLife.jl
 
 ## A Classical Simulation of the Quantum Game of Life
 

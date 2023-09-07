@@ -16,7 +16,7 @@ function bipartite_entropy(psi::MPS, seperator_index::Int)
     SvN
 end
 
-function bipartite_entropy(psi::MPS)
-    middle = trunc(Int, length(psi) / 2)
-    bipartite_entropy(psi, middle)
+function center_bipartite_entropy(psi::MPS)
+    center = trunc(Int, length(psi) / 2)
+    bipartite_entropy(psi, center)
 end
