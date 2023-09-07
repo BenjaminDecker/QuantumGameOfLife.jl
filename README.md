@@ -1,6 +1,7 @@
 # QuantumGameOfLife.jl
 
 ## A Classical Simulation of the Quantum Game of Life
+![](plots/plot.svg)
 
 ### Usage
 List all available parameters with

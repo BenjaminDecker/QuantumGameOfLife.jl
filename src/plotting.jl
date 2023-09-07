@@ -21,7 +21,7 @@ function plot_results(
     plt = pyimport("matplotlib.pyplot")
 
     cmap = "inferno"
-    magic_number = 1.2
+    magic_number = 1.4
 
     num_plots = length(heatmaps_continuous) + length(heatmaps_discrete) + length(line_plots)
     num_cells = length(heatmaps_continuous[1].data[1])
