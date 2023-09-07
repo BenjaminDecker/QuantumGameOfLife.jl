@@ -18,7 +18,7 @@ julia --project cli.jl --initial-states blinker
 
 Use different initial state vectors
 ```bash
-julia --project cli.jl --initial-states blinker triple_blinker
+julia --project cli.jl --initial-states triple_blinker random
 ```
 <br/>
 
