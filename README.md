@@ -12,13 +12,19 @@ julia --project cli.jl --help
 
 Create a plot
 ```bash
-julia --project cli.jl --initial-states single
+julia --project cli.jl --initial-states blinker
 ```
 <br/>
 
 Use different initial state vectors
 ```bash
 julia --project cli.jl --initial-states blinker triple_blinker
+```
+<br/>
+
+Plot different measurement information
+```bash
+julia --project cli.jl --initial-states blinker --plot-sse --plot-rounded --plot-cbe
 ```
 <br/>
 
@@ -30,7 +36,7 @@ Use different rules
 
 Write to different file formats
 ```bash
-julia --project cli.jl --initial-states single --file-formats svg png pdf
+julia --project cli.jl --initial-states blinker --file-formats svg png pdf
 ```
 <br/>
 
@@ -45,7 +51,17 @@ Try the TDVP algorithm (This can take a while)
 julia --project cli.jl --initial-states single --algorithm 2tdvp --num-steps 1000 --plotting-frequency 10 --plot-bond-dims --num-cells 15
 ``` -->
 
-Plots are saved in the plots directory by default, which can be changed with the --plot-file-path argument.
+Plots are saved in the plots directory by default, which can be changed with the --plot-file-path argument (Make sure to create the specified directory if it does not already exist)
+```bash
+julia --project cli.jl --initial-states single --plot-file-path plots2
+```
+<br/>
+
+The plot at the top was created using the following command
+```bash
+julia --project cli.jl --initial-states single --plot-sse --num-steps 100 --num-cells 13 --plot-rounded --plot-cbe --file-formats svg
+```
+<br/>
 
 ### Work with the REPL
 Julia uses a just-in-time compiler which increases the time to the first plot. Subsequent executions will reuse the compiled functions, saving a lot of time. However, when using the cli script, the compiled functions are lost between executions and have to be recompiled every time. 
@@ -64,5 +80,5 @@ using QuantumGameOfLife
 
 Afterwards, you can use the same command line options as with the cli by passing them to the start function.
 ```julia
-QuantumGameOfLife.start("--initial-states single --file-formats pdf jpg --plot-sse --plot-rounded")
+QuantumGameOfLife.start("--initial-states blinker --file-formats pdf jpg --plot-sse --plot-rounded")
 ```

@@ -113,8 +113,8 @@ add_arg_group!(s, "Plot")
 
     "--plot-file-path"
     arg_type = String
-    default = "../plots/"
-    help = "Write files to specified relative location, including file prefix"
+    default = "plots"
+    help = "Write files to a directory at the specified relative location"
 
     "--file-formats"
     arg_type = String

@@ -63,7 +63,7 @@ function start(args::Dict{Symbol,Any})
             heatmaps_continuous=heatmaps_continuous,
             heatmaps_discrete=heatmaps_discrete,
             line_plots=line_plots,
-            path="plots/$(file_name)",
+            path="$(args[:plot_file_path])/$(file_name)",
             file_formats=args[:file_formats]
         )
 
