@@ -42,18 +42,18 @@ julia --project cli.jl --initial-states blinker --file-formats svg png pdf
 
 <!-- Plot the classical evolution and mps bond dimension
 ```bash
-julia --project cli.jl --initial-states single --plot-classical --plot-bond-dims
+julia --project cli.jl --initial-states blinker --plot-classical --plot-bond-dims
 ```
 <br/>
 
 Try the TDVP algorithm (This can take a while)
 ```bash
-julia --project cli.jl --initial-states single --algorithm 2tdvp --num-steps 1000 --plotting-frequency 10 --plot-bond-dims --num-cells 15
+julia --project cli.jl --initial-states blinker --algorithm 2tdvp --num-steps 1000 --plotting-frequency 10 --plot-bond-dims --num-cells 15
 ``` -->
 
 Plots are saved in the plots directory by default, which can be changed with the --plot-file-path argument (Make sure to create the specified directory if it does not already exist)
 ```bash
-julia --project cli.jl --initial-states single --plot-file-path plots2
+julia --project cli.jl --initial-states blinker --plot-file-path plots2
 ```
 <br/>
 
