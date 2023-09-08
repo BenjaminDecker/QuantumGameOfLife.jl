@@ -84,5 +84,5 @@ QuantumGameOfLife.start("--show --initial-states blinker --file-formats pdf jpg 
 <br/>
 
 ---
-> **NOTE**
+> **NOTE**  
 > This is a new and improved version of [BenjaminDecker/quantum-cellular-automaton](https://github.com/BenjaminDecker/quantum-cellular-automaton), re-written in the Julia language.
