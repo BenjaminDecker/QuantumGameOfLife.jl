@@ -1,6 +1,5 @@
 using ITensors
 using PyPlot
-using PyCall
 using SplitApplyCombine
 using DefaultApplication
 
@@ -18,9 +17,6 @@ function plot_results(
     file_formats::Vector{String},
     show::Bool
 )
-
-    plt = pyimport("matplotlib.pyplot")
-
     cmap = "inferno"
     magic_number = 1.4
 
