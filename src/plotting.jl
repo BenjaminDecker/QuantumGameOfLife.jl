@@ -15,7 +15,8 @@ function plot_results(
     heatmaps_discrete::Vector{LabeledPlot}=Vector{LabeledPlot}(),
     line_plots::Vector{LabeledPlot}=Vector{LabeledPlot}(),
     path::String,
-    file_formats::Vector{String}
+    file_formats::Vector{String},
+    show::Bool
 )
 
     plt = pyimport("matplotlib.pyplot")
@@ -85,11 +86,32 @@ function plot_results(
         for i in eachindex(line_plots)
     ]
 
-    axs["plot_$(num_plots)"].set_xlabel("time steps")
+    axs["plot_$(num_plots)"].set_xlabel("Time Steps")
+    write_and_show(path, file_formats, show)
+    nothing
+end
+
+function plot_eigval_vs_cbe(
+    ;
+    eigval::Vector{Float64},
+    cbe::Vector{Float64},
+    path::String,
+    file_formats::Vector{String},
+    show::Bool
+)
+    scatter(eigval, cbe)
+    xlabel("Energy Density E/N")
+    ylabel("Center Bipartite Entropy")
+    write_and_show(path, file_formats, show)
+end
+
+function write_and_show(path::String, file_formats::Vector{String}, show::Bool)
     for suffix in file_formats
         file_path = "$(path).$(suffix)"
         savefig(file_path, bbox_inches="tight")
-        DefaultApplication.open(file_path)
+        if show
+            DefaultApplication.open(file_path)
+        end
+        PyPlot.close()
     end
-    nothing
 end

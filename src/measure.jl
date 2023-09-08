@@ -22,7 +22,6 @@ function measure(state::MPS, measurement_type::SingleSiteEntropy)
 end
 
 function measure(state::MPS, measurement_type::CenterBipartiteEntropy)
-    site_inds = siteinds(state)
     Vector{Float64}([center_bipartite_entropy(state)])
 end
 

@@ -47,7 +47,7 @@ add_arg_group!(s, "Initial States")
 @add_arg_table! s begin
     "--initial-states"
     arg_type = String
-    nargs = '+'
+    nargs = '*'
     default = ["blinker"]
     range_tester = x -> x in INITIAL_STATE_CHOICES
     help = "Initial States. Choices are: " * string(INITIAL_STATE_CHOICES)
@@ -109,7 +109,7 @@ add_arg_group!(s, "Plot")
 
     "--show"
     action = :store_true
-    help = "Show the plots after finishing"
+    help = "Open plots in their respective default applications"
 
     "--plot-file-path"
     arg_type = String
@@ -123,10 +123,6 @@ add_arg_group!(s, "Plot")
     range_tester = x -> x in FILE_FORMAT_CHOICES
     help = "File formats for plots. Choices are: " * string(FILE_FORMAT_CHOICES)
 
-    "--plot-eigenvalue-vs-entropy"
-    action = :store_true
-    help = "Plot the eigenvalues vs. the center-site entropy of their corresponding eigenvectors"
-
     "--plot-fragmentation"
     action = :store_true
     help = "Plot the the fragment sizes of the state fragmentation of the Hamiltonian"
@@ -134,9 +130,9 @@ end
 
 add_arg_group!(s, "Fragmentation Analysis")
 @add_arg_table! s begin
-    "--plot-eigval-vs-entropy"
+    "--plot-eigval-vs-cbe"
     action = :store_true
-    help = "Plot eigenvectors with their eigenvalues vs their center bipartite entropy"
+    help = "Plot the eigenvalues vs. the center bipartite entropy of the hamiltonian's eigenvectors"
 
     "--plot-fragment-sizes"
     action = :store_true
