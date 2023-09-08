@@ -42,7 +42,8 @@ function plot_results(
     end
 
     heatmap_continuous_imgs = [
-        let plot = heatmaps_continuous[i]
+        let
+            plot = heatmaps_continuous[i]
             ax = axs["plot_$(i)"]
             ax.figure.set_size_inches(figsize...)
             ax.set_ylabel(plot.label)
@@ -54,7 +55,8 @@ function plot_results(
 
 
     heatmap_discrete_imgs = [
-        let plot = heatmaps_discrete[i]
+        let
+            plot = heatmaps_discrete[i]
             axs_index = i + length(heatmaps_continuous)
             ax = axs["plot_$(axs_index)"]
             ax.figure.set_size_inches(figsize...)
@@ -71,7 +73,8 @@ function plot_results(
     ]
 
     line_plot_imgs = [
-        let plot = line_plots[i]
+        let
+            plot = line_plots[i]
             axs_index = i + length(heatmaps_continuous) + length(heatmaps_discrete)
             ax = axs["plot_$(axs_index)"]
             ax.figure.set_size_inches(figsize...)
@@ -84,6 +87,7 @@ function plot_results(
 
     axs["plot_$(num_plots)"].set_xlabel("Time Steps")
     write_and_show(path, file_formats, show)
+    PyPlot.close()
     nothing
 end
 
@@ -99,6 +103,7 @@ function plot_eigval_vs_cbe(
     xlabel("Energy Density E/N")
     ylabel("Center Bipartite Entropy")
     write_and_show(path, file_formats, show)
+    PyPlot.close()
 end
 
 function write_and_show(path::String, file_formats::Vector{String}, show::Bool)
@@ -108,6 +113,5 @@ function write_and_show(path::String, file_formats::Vector{String}, show::Bool)
         if show
             DefaultApplication.open(file_path)
         end
-        PyPlot.close()
     end
 end

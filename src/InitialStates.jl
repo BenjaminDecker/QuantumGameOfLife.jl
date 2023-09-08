@@ -15,7 +15,7 @@ function triple_blinker(site_inds::Vector{ITensors.Index{Int64}})
     MPS(site_inds, plist)
 end
 
-function full_blinker(site_inds::Vector{ITensors.Index{Int64}})
+function alternating(site_inds::Vector{ITensors.Index{Int64}})
     plist = [i % 2 == 0 ? "1" : "0" for i in 1:length(site_inds)]
     MPS(site_inds, plist)
 end

@@ -2,9 +2,9 @@ module Parser
 
 import ArgParse: ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
 
-const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "full_blinker", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "random"]
+const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "random"]
 const ALGORITHM_CHOICES = ["exact", "1tdvp", "2tdvp", "a1tdvp"]
-const FILE_FORMAT_CHOICES = ["html", "eps", "jpeg", "jpg", "pdf", "pgf",
+const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf",
     "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
 const PLOTS_CHOICES = ["expect", "sse"]
 
