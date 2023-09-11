@@ -4,7 +4,7 @@ using ProgressMeter
 function evolve(U_tensor::ITensor, psi_0_mps::MPS, num_steps::Int)
     results = [psi_0_mps]
     psi_tensor = contract(psi_0_mps)
-    @showprogress "Calculating Time Evolution..." for _ in 2:num_steps
+    @showprogress "Calculating Time Evolution" for _ in 2:num_steps
         psi_tensor = noprime(U_tensor * psi_tensor)
         push!(results, MPS(psi_tensor, siteinds(psi_0_mps)))
     end

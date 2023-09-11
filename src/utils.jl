@@ -13,7 +13,7 @@ function bipartite_entropy(psi::MPS, seperator_index::Int)
             SvN -= p * log(p)
         end
     end
-    SvN
+    real(SvN)
 end
 
 function center_bipartite_entropy(psi::MPS)

@@ -27,7 +27,7 @@ end
 
 function measure(states::Vector{MPS}, measurements_types::Set{MeasurementType})
     measurements = Dict{MeasurementType,Vector{Vector{Float64}}}()
-    @showprogress "Measuring..." for state in states
+    @showprogress "Measuring" for state in states
         for measurement_type in measurements_types
             measurement = measure(state, measurement_type)
             result_vector = get!(measurements, measurement_type, [])
