@@ -8,15 +8,7 @@ struct LabeledPlot
     data::Vector{Vector{Float64}}
 end
 
-function plot_results(
-    ;
-    heatmaps_continuous::Vector{LabeledPlot},
-    heatmaps_discrete::Vector{LabeledPlot}=Vector{LabeledPlot}(),
-    line_plots::Vector{LabeledPlot}=Vector{LabeledPlot}(),
-    path::String,
-    file_formats::Vector{String},
-    show::Bool
-)
+function plot_results(; heatmaps_continuous::Vector{LabeledPlot}, heatmaps_discrete::Vector{LabeledPlot}=Vector{LabeledPlot}(), line_plots::Vector{LabeledPlot}=Vector{LabeledPlot}(), path::String, file_formats::Vector{String}, show::Bool)
     cmap = "inferno"
     magic_number = 1.4
 
@@ -88,20 +80,21 @@ function plot_results(
     axs["plot_$(num_plots)"].set_xlabel("Time Steps")
     write_and_show(path, file_formats, show)
     PyPlot.close()
-    nothing
 end
 
-function plot_eigval_vs_cbe(
-    ;
-    eigval::Vector{Float64},
-    cbe::Vector{Float64},
-    path::String,
-    file_formats::Vector{String},
-    show::Bool
-)
+function plot_eigval_vs_cbe(; eigval::Vector{Float64}, cbe::Vector{Float64}, path::String, file_formats::Vector{String}, show::Bool)
     scatter(eigval, cbe)
     xlabel("Energy Density E/N")
     ylabel("Center Bipartite Entropy")
+    write_and_show(path, file_formats, show)
+    PyPlot.close()
+end
+
+function plot_fragment_sizes(; fragment_sizes::Vector{Int}, path::String, file_formats::Vector{String}, show::Bool)
+    fragments = eachindex(fragment_sizes)
+    bar(fragments, fragment_sizes; tick_label=length(fragments) <= 20 ? fragments : nothing)
+    xlabel("Fragment")
+    ylabel("Fragment Size")
     write_and_show(path, file_formats, show)
     PyPlot.close()
 end

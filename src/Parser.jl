@@ -2,7 +2,7 @@ module Parser
 
 import ArgParse: ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
 
-const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "random"]
+const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
 const ALGORITHM_CHOICES = ["exact", "1tdvp", "2tdvp", "a1tdvp"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf",
     "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
@@ -17,8 +17,9 @@ s = ArgParseSettings(
 add_arg_group!(s, "Rules")
 @add_arg_table! s begin
     "--num-cells"
+    nargs = '+'
     arg_type = Int
-    default = 9
+    default = Int[9]
     help = "The number of cells to use in the simulation. Computation running time scales exponentially with NUM_CELLS. Anything higher than 11 takes a lot of time and memory to compute."
 
     "--distance"
@@ -136,7 +137,11 @@ add_arg_group!(s, "Fragmentation Analysis")
 
     "--plot-fragment-sizes"
     action = :store_true
-    help = "Plot the fragment sizes of the Hamiltonian"
+    help = "Plot the fragment sizes of the Hamiltonian. Sizes are plotted up to periodic symmetry if periodic boundary conditions are used."
+
+    # "--include-frozen-states"
+    # action = :store_true
+    # help = "Include frozen states. Frozen states are eigenstates of the Hamiltonian that are also product states in the z-basis. This option is ignored if none of the othr Fragmentation Analysis options is set."
 end
 
 parse_args() = parse_args(s; as_symbols=true)

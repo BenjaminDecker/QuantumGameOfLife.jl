@@ -74,6 +74,13 @@ function equal_superposition_but_outer_ket_1(site_inds::Vector{ITensors.Index{In
     MPS(site_inds, plist)
 end
 
+function single_bottom_blinker_top(site_inds::Vector{ITensors.Index{Int64}})
+    plist = ["1", "0", "1"]
+    append!(plist, fill("0", length(site_inds) - 4))
+    push!(plist, "1")
+    MPS(site_inds, plist)
+end
+
 function random(site_inds::Vector{ITensors.Index{Int64}})
     plist = map(x -> x ? "1" : "0", bitrand(length(site_inds)))
     MPS(site_inds, plist)
