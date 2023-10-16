@@ -1,7 +1,11 @@
+module Plotting
+
 using ITensors
 using PyPlot
 using SplitApplyCombine
 using DefaultApplication
+
+export plot_results, plot_eigval_vs_cbe, plot_fragment_sizes, LabeledPlot
 
 struct LabeledPlot
     label::String
@@ -107,4 +111,5 @@ function write_and_show(path::String, file_formats::Vector{String}, show::Bool)
             DefaultApplication.open(file_path)
         end
     end
+end
 end

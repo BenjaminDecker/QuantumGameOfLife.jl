@@ -1,3 +1,5 @@
+module Utils
+
 using ITensors
 
 function bipartite_entropy(psi::MPS, seperator_index::Int)
@@ -19,4 +21,5 @@ end
 function center_bipartite_entropy(psi::MPS)
     center = trunc(Int, length(psi) / 2)
     bipartite_entropy(psi, center)
+end
 end

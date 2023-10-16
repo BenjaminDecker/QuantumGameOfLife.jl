@@ -1,11 +1,15 @@
 module Parser
 
-import ArgParse: ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
+import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
+using InteractiveUtils
+using FromFile
+
+@from "Types.jl" using Types
+
+export get_args
 
 const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
-const ALGORITHM_CHOICES = ["exact", "1tdvp", "2tdvp", "a1tdvp"]
-const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf",
-    "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
+const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
 const PLOTS_CHOICES = ["expect", "sse"]
 
 s = ArgParseSettings(
@@ -49,7 +53,7 @@ add_arg_group!(s, "Initial States")
     "--initial-states"
     arg_type = String
     nargs = '*'
-    default = ["blinker"]
+    default = String["blinker"]
     range_tester = x -> x in INITIAL_STATE_CHOICES
     help = "Initial States. Choices are: " * string(INITIAL_STATE_CHOICES)
 end
@@ -57,10 +61,10 @@ end
 add_arg_group!(s, "Algorithm")
 @add_arg_table! s begin
     "--algorithm"
-    arg_type = String
-    default = "exact"
-    range_tester = x -> x in ALGORITHM_CHOICES
-    help = "The algorithm used for the time evolution. Use 'exact' for a small number of cells, otherwise some version of 'tdvp'. Choices are: " * string(ALGORITHM_CHOICES)
+    arg_type = Types.Algorithm
+    nargs = '+'
+    default = Types.Algorithm[Types.Exact()]
+    help = "The algorithm used for the time evolution. Use 'exact' only for small numbers of cells. Choices are: " * string(map(x -> Types.name(x()), subtypes(Types.Algorithm)))
 
     "--step-size"
     arg_type = Float64
@@ -144,6 +148,16 @@ add_arg_group!(s, "Fragmentation Analysis")
     # help = "Include frozen states. Frozen states are eigenstates of the Hamiltonian that are also product states in the z-basis. This option is ignored if none of the othr Fragmentation Analysis options is set."
 end
 
-parse_args() = parse_args(s; as_symbols=true)
+function ArgParse.parse_item(::Type{Types.Algorithm}, x::AbstractString)
+    if (x == "exact")
+        return Types.Exact()
+    elseif (x == "tebd")
+        return Types.TEBD()
+    else
+        throw(ArgumentError("")) #TODO
+    end
+end
+
+get_args() = parse_args(s; as_symbols=true)
 
 end
