@@ -10,7 +10,7 @@ using FromFile
 export measure
 
 measure(state::MPS, measurement_type::Types.ExpectationValue) = expect(state, "Proj1")
-measure(state::MPS, measurement_type::Types.Rounded) = round.(measure(state, ExpectationValue()))
+measure(state::MPS, measurement_type::Types.Rounded) = round.(measure(state, Types.ExpectationValue()))
 measure(state::MPS, measurement_type::Types.BondDimensions) = [dim(linkind(state, i)) for i in 1:(length(state)-1)]
 
 function measure(state::MPS, measurement_type::Types.SingleSiteEntropy)
