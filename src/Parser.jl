@@ -148,7 +148,7 @@ add_arg_group!(s, "Fragmentation Analysis")
     # help = "Include frozen states. Frozen states are eigenstates of the Hamiltonian that are also product states in the z-basis. This option is ignored if none of the othr Fragmentation Analysis options is set."
 end
 
-function ArgParse.parse_item(::Type{Types.Algorithm}, x::AbstractString)
+function ArgParse.parse_item(::Type{Types.Algorithm}, x::AbstractString)::Types.Algorithm
     if (x == "exact")
         return Types.Exact()
     elseif (x == "tebd")

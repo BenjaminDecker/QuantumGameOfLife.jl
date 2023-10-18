@@ -30,7 +30,7 @@ function start(args::Dict{Symbol,Any})
     for num_cells in args[:num_cells] # args[:num_cells] is an array of num_cells values
         ITensors.set_warn_order(num_cells * 2 + 1)
         site_inds = siteinds("Qubit", num_cells)
-        H_mpo = build_hamiltonian_MPO(site_inds, args[:distance], args[:activation_interval][1], args[:activation_interval][2], args[:periodic_boundaries])
+        H_mpo = build_MPO_hamiltonian(site_inds, args[:distance], args[:activation_interval][1], args[:activation_interval][2], args[:periodic_boundaries])
         rule_filename = "$(num_cells)-$(args[:distance])-$(args[:activation_interval][1])$(args[:activation_interval][2])"
         for state_name in args[:initial_states]
             psi_0_mps = getfield(InitialStates, Symbol(state_name))(site_inds)

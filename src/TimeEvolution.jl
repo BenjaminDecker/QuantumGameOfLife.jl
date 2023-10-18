@@ -8,7 +8,7 @@ using FromFile
 
 export evolve
 
-function evolve_exact(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64)
+function evolve(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64, algorithm::Types.Exact)::Vector{MPS}
     U_tensor = let
         print("Calculating Time Evolution Operator...")
         t = step_size * pi / 2
@@ -25,7 +25,11 @@ function evolve_exact(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Flo
     return results
 end
 
-function evolve(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64, algorithm::Types.Algorithm)
-    return evolve_exact(H_mpo, psi_0_mps, num_steps, step_size)
-end
+# function evolve(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64, algorithm::Types.Exact)
+# tebd_mpos = []
+# end
+
+# function evolve(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64, algorithm::Types.Algorithm)
+# return evolve_exact(H_mpo, psi_0_mps, num_steps, step_size)
+# end
 end

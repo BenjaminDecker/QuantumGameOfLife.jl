@@ -8,7 +8,7 @@ using FromFile
 
 export eigval_vs_cbe, fragment_sizes
 
-function eigval_vs_cbe(H::MPO)
+function eigval_vs_cbe(H::MPO)::Tuple{Vector{Float64},Vector{Float64}}
     site_inds = firstsiteinds(H)
     print("Calculating eigen decomposition...")
     D, U = eigen(contract(H); ishermitian=true)
@@ -22,7 +22,7 @@ function eigval_vs_cbe(H::MPO)
     (eigvals ./ length(site_inds), cbe)
 end
 
-function eigval_vs_cbe(H::MPO, eigenvectors::Set{BitVector})
+function eigval_vs_cbe(H::MPO, eigenvectors::Set{BitVector})::Tuple{Vector{Float64},Vector{Float64}}
     site_inds = firstsiteinds(H)
     eigvals = Vector{Float64}()
     cbe = Vector{Float64}()
@@ -34,7 +34,7 @@ function eigval_vs_cbe(H::MPO, eigenvectors::Set{BitVector})
     (eigvals ./ length(site_inds), cbe)
 end
 
-function necklace(bits::BitVector)
+function necklace(bits::BitVector)::BitVector
     best_candidate = bits
     for i in eachindex(bits)
         candidate = circshift(bits, i)
@@ -45,7 +45,7 @@ function necklace(bits::BitVector)
     return best_candidate
 end
 
-# function is_in_subspace(bits::BitVector)
+# function is_in_subspace(bits::BitVector)::Bool
 #     return true
 #     last_value = bits[end]
 #     for value in bits
@@ -57,9 +57,9 @@ end
 #     return true
 # end
 
-bitvector_to_mps(bitvector::BitVector, site_inds::Vector{Index{Int64}}) = MPS(site_inds, map(string, filter(x -> x == '1' || x == '0', collect(bitstring(bitvector)))))
+bitvector_to_mps(bitvector::BitVector, site_inds::Vector{Index{Int64}})::MPS = MPS(site_inds, map(string, filter(x -> x == '1' || x == '0', collect(bitstring(bitvector)))))
 
-function fragment_sizes(H::MPO, periodic::Bool)
+function fragment_sizes(H::MPO, periodic::Bool)::Vector{Int}
     site_inds = firstsiteinds(H)
     num_sites = length(site_inds)
     C = combiner(site_inds...)
