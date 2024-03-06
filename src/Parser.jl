@@ -11,6 +11,7 @@ export get_args
 const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
 const PLOTS_CHOICES = ["expect", "sse"]
+const ALGORITHM_CHOICES = ["exact", "serpinsky"]
 
 s = ArgParseSettings(
     prog="main.jl",
@@ -21,9 +22,8 @@ s = ArgParseSettings(
 add_arg_group!(s, "Rules")
 @add_arg_table! s begin
     "--num-cells"
-    nargs = '+'
     arg_type = Int
-    default = Int[9]
+    default = 9
     help = "The number of cells to use in the simulation. Computation running time scales exponentially with NUM_CELLS. Anything higher than 11 takes a lot of time and memory to compute."
 
     "--distance"
@@ -34,9 +34,9 @@ add_arg_group!(s, "Rules")
     "--activation-interval"
     arg_type = Int
     nargs = 2
-    default = Int[1, 2]
+    default = Int[1, 1]
     metavar = ["LowerBound", "UpperBound"]
-    help = "Range of alive neighbours required for a flip, upper bound is excluded"
+    help = "Range of alive neighbours required for a flip, upper bound is included"
 
     "--num-steps"
     arg_type = Int
@@ -48,28 +48,33 @@ add_arg_group!(s, "Rules")
     help = "Use periodic instead of open boundary conditions"
 end
 
-add_arg_group!(s, "Initial States")
+add_arg_group!(s, "Initial State")
 @add_arg_table! s begin
-    "--initial-states"
+    "--initial-state"
     arg_type = String
-    nargs = '*'
+    nargs = '+'
     default = String["blinker"]
     range_tester = x -> x in INITIAL_STATE_CHOICES
-    help = "Initial States. Choices are: " * string(INITIAL_STATE_CHOICES)
+    help = "Initial State. If more than one is given, an equal superposition of the states is used. Choices are: " * string(INITIAL_STATE_CHOICES)
 end
 
 add_arg_group!(s, "Algorithm")
 @add_arg_table! s begin
     "--algorithm"
-    arg_type = Types.Algorithm
-    nargs = '+'
-    default = Types.Algorithm[Types.Exact()]
-    help = "The algorithm used for the time evolution. Use 'exact' only for small numbers of cells. Choices are: " * string(map(x -> Types.name(x()), subtypes(Types.Algorithm)))
+    arg_type = String
+    default = "exact"
+    range_tester = x -> x in ALGORITHM_CHOICES
+    help = "The algorithm used for the time evolution. Use 'exact' only for small numbers of cells. Choices are: " * string(ALGORITHM_CHOICES)
 
     "--step-size"
     arg_type = Float64
     default = 1.0
     help = "Size of one time step. The time step size is calculated as (STEP_SIZE * pi/2)"
+
+    "--sweeps-per-time-step"
+    arg_type = Int
+    default = 100
+    help = "The number of sweeps to perform per time step. Is ignored if the chosen algorithm is 'exact'."
 
     "--max-bond-dim"
     arg_type = Int
@@ -146,16 +151,6 @@ add_arg_group!(s, "Fragmentation Analysis")
     # "--include-frozen-states"
     # action = :store_true
     # help = "Include frozen states. Frozen states are eigenstates of the Hamiltonian that are also product states in the z-basis. This option is ignored if none of the othr Fragmentation Analysis options is set."
-end
-
-function ArgParse.parse_item(::Type{Types.Algorithm}, x::AbstractString)::Types.Algorithm
-    if (x == "exact")
-        return Types.Exact()
-    elseif (x == "tebd")
-        return Types.TEBD()
-    else
-        throw(ArgumentError("")) #TODO
-    end
 end
 
 get_args() = parse_args(s; as_symbols=true)

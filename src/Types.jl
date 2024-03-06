@@ -23,11 +23,4 @@ struct CenterBipartiteEntropy <: LinePlot end
 name(_::CenterBipartiteEntropy) = "CenterBipartiteEntropy"
 label(_::CenterBipartiteEntropy) = "Center\nBipartite\nEntropy"
 
-
-abstract type Algorithm end
-struct Exact <: Algorithm end
-name(_::Exact) = "Exact"
-struct TEBD <: Algorithm end
-name(_::TEBD) = "TEBD"
-
 end

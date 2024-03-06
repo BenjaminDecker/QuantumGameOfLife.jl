@@ -14,11 +14,12 @@ end
 
 function plot_results(; heatmaps_continuous::Vector{LabeledPlot}, heatmaps_discrete::Vector{LabeledPlot}=Vector{LabeledPlot}(), line_plots::Vector{LabeledPlot}=Vector{LabeledPlot}(), path::String, file_formats::Vector{String}, show::Bool)
     cmap = "inferno"
-    magic_number = 1.4
+    magic_number = 1.2
 
     num_plots = length(heatmaps_continuous) + length(heatmaps_discrete) + length(line_plots)
     num_cells = length(heatmaps_continuous[1].data[1])
     num_steps = length(heatmaps_continuous[1].data)
+    S_max = (num_cells * log(2) - 1) / 2
 
     colorbar_width = 0.15 # As a fraction of the subplot height
 
@@ -77,6 +78,8 @@ function plot_results(; heatmaps_continuous::Vector{LabeledPlot}, heatmaps_discr
             ax.set_ylabel(plot.label)
             axs["colorbar_$(axs_index)"].axis("off")
             ax.plot(plot.data)
+            ax.hlines(S_max, 0, length(plot.data) - 1, colors="red", linestyles="--", label="page entropy")
+            ax.legend(loc="lower right")
         end
         for i in eachindex(line_plots)
     ]
@@ -86,19 +89,23 @@ function plot_results(; heatmaps_continuous::Vector{LabeledPlot}, heatmaps_discr
     PyPlot.close()
 end
 
-function plot_eigval_vs_cbe(; eigval::Vector{Float64}, cbe::Vector{Float64}, path::String, file_formats::Vector{String}, show::Bool)
+function plot_eigval_vs_cbe(; eigval::Vector{Float64}, cbe::Vector{Float64}, path::String, file_formats::Vector{String}, show::Bool, num_cells::Int)
     scatter(eigval, cbe)
-    xlabel("Energy Density E/N")
+    xlabel("Energy Density E/L")
     ylabel("Center Bipartite Entropy")
+    S_max = (num_cells * log(2) - 1) / 2
+    PyPlot.axhline(S_max, color="red", linestyle="--", label="Page Entropy \$\\frac{L\\cdot log(2)-1}{2}\$")
+    PyPlot.legend(loc="upper left", framealpha=1.0)
     write_and_show(path, file_formats, show)
     PyPlot.close()
 end
 
 function plot_fragment_sizes(; fragment_sizes::Vector{Int}, path::String, file_formats::Vector{String}, show::Bool)
-    fragments = eachindex(fragment_sizes)
-    bar(fragments, fragment_sizes; tick_label=length(fragments) <= 20 ? fragments : nothing)
+    bar(eachindex(fragment_sizes), fragment_sizes)
     xlabel("Fragment")
     ylabel("Fragment Size")
+    PyPlot.yticks(Vector(1:ceil(Int, fragment_sizes[end] / 20):fragment_sizes[end]))
+    PyPlot.xticks(Vector(1:ceil(Int, length(fragment_sizes) / 10):length(fragment_sizes)))
     write_and_show(path, file_formats, show)
     PyPlot.close()
 end
