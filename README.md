@@ -68,7 +68,7 @@ julia --project cli.jl --show --initial-state single --distance 1 --activation-i
 <br/>
 
 ## Work with the REPL
-Julia uses a just-in-time compiler which increases the time to the first plot, while subsequent executions will reuse the compiled functions, saving a lot of time. However, when using the cli script, the compiled functions are lost between executions and have to be recompiled every time. 
+Julia uses a just-in-time compiler which takes extra time when the code is executed the first time. Subsequent executions will reuse the compiled functions and run a lot faster, even with different input parameters. However, when using the cli script, the compiled functions are lost between executions and have to be recompiled every time.
 
 To prevent that, you might want to work from inside the julia REPL, especially if you plan to create many quick plots.
 To do that, first open the julia REPL
