@@ -1,12 +1,5 @@
-module Parser
-
 import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
 using InteractiveUtils
-using FromFile
-
-@from "Types.jl" using Types
-
-export get_args
 
 const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
@@ -154,5 +147,3 @@ add_arg_group!(s, "Fragmentation Analysis")
 end
 
 get_args() = parse_args(s; as_symbols=true)
-
-end

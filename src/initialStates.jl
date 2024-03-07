@@ -1,5 +1,3 @@
-module InitialStates
-
 using ITensors
 using Random
 
@@ -84,5 +82,4 @@ end
 function random(site_inds::Vector{ITensors.Index{Int64}})::MPS
     plist = map(x -> x ? "1" : "0", bitrand(length(site_inds)))
     MPS(site_inds, plist)
-end
 end

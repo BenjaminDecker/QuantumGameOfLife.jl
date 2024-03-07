@@ -1,5 +1,3 @@
-module Utils
-
 using ITensors
 using Combinatorics
 
@@ -38,5 +36,4 @@ function get_combinations(num_cells::Int, index::Int, distance::Int, activation_
         append!(ket_1_indices, combinations(valid_indices, num_ket_1))
     end
     return map(combination -> (combination, setdiff(valid_indices, combination)), ket_1_indices)
-end
 end

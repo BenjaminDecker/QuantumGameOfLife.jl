@@ -1,11 +1,4 @@
-module HamiltonianMpoCreator
-
 using ITensors
-using FromFile
-
-@from "Utils.jl" using Utils
-
-export build_MPO_hamiltonian
 
 """
     build_MPO_hamiltonian(
@@ -26,7 +19,7 @@ function build_MPO_hamiltonian(
     num_cells = length(site_inds)
     os = OpSum()
     for site_index in 1:num_cells
-        for (ket_1_indices, ket_0_indices) in Utils.get_combinations(num_cells, site_index, distance, activation_interval, periodic)
+        for (ket_1_indices, ket_0_indices) in get_combinations(num_cells, site_index, distance, activation_interval, periodic)
             op::Vector{Union{Int,String}} = []
             push!(op, "X")
             push!(op, site_index)
@@ -42,5 +35,4 @@ function build_MPO_hamiltonian(
         end
     end
     return MPO(os, site_inds)
-end
 end

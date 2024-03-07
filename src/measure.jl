@@ -1,19 +1,11 @@
-module Measure
-
 using ITensors
 using ProgressMeter
-using FromFile
 
-@from "Types.jl" using Types
-@from "Utils.jl" using Utils
+measure(state::MPS, measurement_type::ExpectationValue)::Vector{Float64} = expect(state, "Proj1")
+measure(state::MPS, measurement_type::Rounded)::Vector{Float64} = round.(measure(state, ExpectationValue()))
+measure(state::MPS, measurement_type::BondDimensions)::Vector{Float64} = [dim(linkind(state, i)) for i in 1:(length(state)-1)]
 
-export measure
-
-measure(state::MPS, measurement_type::Types.ExpectationValue)::Vector{Float64} = expect(state, "Proj1")
-measure(state::MPS, measurement_type::Types.Rounded)::Vector{Float64} = round.(measure(state, Types.ExpectationValue()))
-measure(state::MPS, measurement_type::Types.BondDimensions)::Vector{Float64} = [dim(linkind(state, i)) for i in 1:(length(state)-1)]
-
-function measure(state::MPS, measurement_type::Types.SingleSiteEntropy)::Vector{Float64}
+function measure(state::MPS, measurement_type::SingleSiteEntropy)::Vector{Float64}
     site_inds = siteinds(state)
     num_sites = length(site_inds)
     sse = Vector{Float64}(undef, num_sites)
@@ -29,12 +21,12 @@ function measure(state::MPS, measurement_type::Types.SingleSiteEntropy)::Vector{
     return sse
 end
 
-function measure(state::MPS, measurement_type::Types.CenterBipartiteEntropy)::Vector{Float64}
-    Vector{Float64}([Utils.center_bipartite_entropy(state)])
+function measure(state::MPS, measurement_type::CenterBipartiteEntropy)::Vector{Float64}
+    Vector{Float64}([center_bipartite_entropy(state)])
 end
 
-function measure(states::Vector{MPS}, measurements_types::Set{Types.MeasurementType})::Dict{Types.MeasurementType,Vector{Vector{Float64}}}
-    measurements = Dict{Types.MeasurementType,Vector{Vector{Float64}}}()
+function measure(states::Vector{MPS}, measurements_types::Set{MeasurementType})::Dict{MeasurementType,Vector{Vector{Float64}}}
+    measurements = Dict{MeasurementType,Vector{Vector{Float64}}}()
     p = Progress(length(states) * length(measurements_types); desc="Measuring")
     for measurement_type in measurements_types
         result_vector = get!(measurements, measurement_type, [])
@@ -47,5 +39,4 @@ function measure(states::Vector{MPS}, measurements_types::Set{Types.MeasurementT
     end
     finish!(p)
     return measurements
-end
 end

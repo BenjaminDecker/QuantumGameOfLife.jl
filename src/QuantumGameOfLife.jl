@@ -2,16 +2,16 @@ module QuantumGameOfLife
 
 using ITensors
 using InteractiveUtils
-using FromFile
 
-@from "Parser.jl" using Parser
-@from "Types.jl" using Types
-@from "HamiltonianMpoCreator.jl" using HamiltonianMpoCreator
-@from "InitialStates.jl" using InitialStates
-@from "TimeEvolution.jl" using TimeEvolution
-@from "Measure.jl" using Measure
-@from "Plotting.jl" using Plotting
-@from "FragmentationAnalysis.jl" using FragmentationAnalysis
+include("utils.jl")
+include("types.jl")
+include("parsing.jl")
+include("hamiltonianMpoCreation.jl")
+include("initialStates.jl")
+include("timeEvolution.jl")
+include("measure.jl")
+include("plotting.jl")
+include("fragmentationAnalysis.jl")
 
 export start
 
@@ -42,7 +42,7 @@ function start(args::Dict{Symbol,Any})
     rule_filename = "$(num_cells)-$(distance)-$(activation_interval.start)$(activation_interval.stop)-$(num_steps)-$(replace(string(step_size), "." => ""))-$(periodic ? "periodic" : "open")"
 
     if length(initial_state) > 0
-        psi_0_mps = sum([getfield(InitialStates, Symbol(state_name))(site_inds) for state_name in initial_state])
+        psi_0_mps = sum([getfield(QuantumGameOfLife, Symbol(state_name))(site_inds) for state_name in initial_state])
         normalize!(psi_0_mps)
         results =
             if algorithm == "exact"
@@ -64,27 +64,27 @@ function start(args::Dict{Symbol,Any})
 end
 
 function measure_and_plot(results::Vector{MPS}, path::String, args::Dict{Symbol,Any})
-    planned_measurements = Set{Types.MeasurementType}([Types.ExpectationValue()])
+    planned_measurements = Set{MeasurementType}([ExpectationValue()])
     if args[:plot_sse]
-        push!(planned_measurements, Types.SingleSiteEntropy())
+        push!(planned_measurements, SingleSiteEntropy())
     end
     if args[:plot_rounded]
-        push!(planned_measurements, Types.Rounded())
+        push!(planned_measurements, Rounded())
     end
     if args[:plot_bond_dims]
-        push!(planned_measurements, Types.BondDimensions())
+        push!(planned_measurements, BondDimensions())
     end
     if args[:plot_cbe]
-        push!(planned_measurements, Types.CenterBipartiteEntropy())
+        push!(planned_measurements, CenterBipartiteEntropy())
     end
     measurements = measure(results, planned_measurements)
 
-    heatmap_continuous_measurements = filter(x -> haskey(measurements, x()), subtypes(Types.HeatmapContinuous))
-    heatmap_discrete_measurements = filter(x -> haskey(measurements, x()), subtypes(Types.HeatmapDiscrete))
-    line_plot_measurements = filter(x -> haskey(measurements, x()), subtypes(Types.LinePlot))
-    heatmaps_continuous = map(x -> LabeledPlot(Types.label(x()), measurements[x()]), heatmap_continuous_measurements)
-    heatmaps_discrete = map(x -> LabeledPlot(Types.label(x()), measurements[x()]), heatmap_discrete_measurements)
-    line_plots = map(x -> LabeledPlot(Types.label(x()), measurements[x()]), line_plot_measurements)
+    heatmap_continuous_measurements = filter(x -> haskey(measurements, x()), subtypes(HeatmapContinuous))
+    heatmap_discrete_measurements = filter(x -> haskey(measurements, x()), subtypes(HeatmapDiscrete))
+    line_plot_measurements = filter(x -> haskey(measurements, x()), subtypes(LinePlot))
+    heatmaps_continuous = map(x -> LabeledPlot(label(x()), measurements[x()]), heatmap_continuous_measurements)
+    heatmaps_discrete = map(x -> LabeledPlot(label(x()), measurements[x()]), heatmap_discrete_measurements)
+    line_plots = map(x -> LabeledPlot(label(x()), measurements[x()]), line_plot_measurements)
     plot_results(heatmaps_continuous=heatmaps_continuous, heatmaps_discrete=heatmaps_discrete, line_plots=line_plots, path=path, file_formats=args[:file_formats], show=args[:show])
 end
 end

@@ -1,11 +1,7 @@
-module Plotting
-
 using ITensors
 using PyPlot
 using SplitApplyCombine
 using DefaultApplication
-
-export plot_results, plot_eigval_vs_cbe, plot_fragment_sizes, LabeledPlot
 
 struct LabeledPlot
     label::String
@@ -79,7 +75,7 @@ function plot_results(; heatmaps_continuous::Vector{LabeledPlot}, heatmaps_discr
             axs["colorbar_$(axs_index)"].axis("off")
             ax.plot(plot.data)
             ax.hlines(S_max, 0, length(plot.data) - 1, colors="red", linestyles="--", label="page entropy")
-            ax.legend(loc="lower right")
+            ax.legend(loc="upper right")
         end
         for i in eachindex(line_plots)
     ]
@@ -118,5 +114,4 @@ function write_and_show(path::String, file_formats::Vector{String}, show::Bool)
             DefaultApplication.open(file_path)
         end
     end
-end
 end

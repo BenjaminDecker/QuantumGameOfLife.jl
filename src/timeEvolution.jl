@@ -1,14 +1,5 @@
-module TimeEvolution
-
 using ITensors
 using ProgressMeter
-using FromFile
-
-@from "Types.jl" using Types
-@from "HamiltonianMpoCreator.jl" using HamiltonianMpoCreator
-@from "Utils.jl" using Utils
-
-export evolve_exact, evolve_serpinsky, evolve_tebd
 
 function evolve_exact(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64)::Vector{MPS}
     U_tensor = let
@@ -81,7 +72,7 @@ function evolve_tebd(distance::Int, lower_activation_bound::Int, upper_activatio
 
     for i in eachindex(site_inds)
         summands = ITensor[]
-        for (ket_1_indices, ket_0_indices) in Utils.get_combinations(length(site_inds), i, distance, lower_activation_bound, upper_activation_bound, periodic)
+        for (ket_1_indices, ket_0_indices) in get_combinations(length(site_inds), i, distance, lower_activation_bound, upper_activation_bound, periodic)
             opj = op("X", site_inds[i])
             for ket_1_index in ket_1_indices
                 opj *= op("Proj1", site_inds[ket_1_index])
@@ -122,4 +113,3 @@ end
 # function evolve(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64, algorithm::Types.Algorithm)
 # return evolve_exact(H_mpo, psi_0_mps, num_steps, step_size)
 # end
-end

@@ -1,13 +1,5 @@
-module FragmentationAnalysis
-
 using ITensors
 using ProgressMeter
-using FromFile
-
-@from "Utils.jl" using Utils
-
-export eigval_vs_cbe, fragment_sizes
-
 
 """
     eigval_vs_cbe(H::MPO)::Tuple{Vector{Float64},Vector{Float64}}
@@ -29,7 +21,7 @@ function eigval_vs_cbe(H::MPO)::Tuple{Vector{Float64},Vector{Float64}}
     eigen_ind = inds(U, tags="eigen")[1]
     eigvals = [D[eigen_ind=>i, eigen_ind'=>i] for i in eachval(eigen_ind)]
     cbe = @showprogress "Calculating center bipartite entropy of eigenvectors" [
-        Utils.center_bipartite_entropy(MPS(U * onehot(eigen_ind => i), site_inds))
+        center_bipartite_entropy(MPS(U * onehot(eigen_ind => i), site_inds))
         for i in eachval(eigen_ind)
     ]
 
@@ -174,5 +166,4 @@ function fragment_sizes(H::MPO, periodic::Bool)::Vector{Int}
     finish!(prog)
 
     return sort([length(fragments[key]) for key in eachindex(fragments)])
-end
 end

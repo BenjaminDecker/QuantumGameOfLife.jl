@@ -1,5 +1,3 @@
-module Types
-
 abstract type MeasurementType end
 
 abstract type HeatmapContinuous <: MeasurementType end
@@ -22,5 +20,3 @@ abstract type LinePlot <: MeasurementType end
 struct CenterBipartiteEntropy <: LinePlot end
 name(_::CenterBipartiteEntropy) = "CenterBipartiteEntropy"
 label(_::CenterBipartiteEntropy) = "Center\nBipartite\nEntropy"
-
-end
