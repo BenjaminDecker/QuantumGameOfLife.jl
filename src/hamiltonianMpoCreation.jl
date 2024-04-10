@@ -3,23 +3,20 @@ using ITensors
 """
     build_MPO_hamiltonian(
     site_inds::Vector{ITensors.Index{Int64}},
-    distance::Int,
-    activation_interval::UnitRange{Int64},
-    periodic::Bool
+    args::Args
 )::MPO
 
 TBW
 """
 function build_MPO_hamiltonian(
     site_inds::Vector{ITensors.Index{Int64}},
-    distance::Int,
-    activation_interval::UnitRange{Int64},
-    periodic::Bool
+    args::Args
 )::MPO
-    num_cells = length(site_inds)
+    @assert length(site_inds) == args.num_cells
+
     os = OpSum()
-    for site_index in 1:num_cells
-        for (ket_1_indices, ket_0_indices) in get_combinations(num_cells, site_index, distance, activation_interval, periodic)
+    for site_index in 1:args.num_cells
+        for (ket_1_indices, ket_0_indices) in get_combinations(site_index, args)
             op::Vector{Union{Int,String}} = []
             push!(op, "X")
             push!(op, site_index)

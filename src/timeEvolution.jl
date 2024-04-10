@@ -1,44 +1,44 @@
 using ITensors
 using ProgressMeter
 
-function evolve_exact(H_mpo::MPO, psi_0_mps::MPS, num_steps::Int, step_size::Float64)::Vector{MPS}
+function evolve_exact(H_mpo::MPO, psi_0_mps::MPS, args::Args)::Vector{MPS}
     U_tensor = let
         print("Calculating Time Evolution Operator...")
-        t = step_size * pi / 2
+        t = args.step_size * pi / 2
         exp(-im * contract(H_mpo) * t)
     end
     println("done")
     results = [psi_0_mps]
-    sizehint!(results, num_steps)
+    sizehint!(results, args.num_steps)
     psi_tensor = contract(psi_0_mps)
-    @showprogress "Calculating Time Evolution" for _ in 2:num_steps
+    @showprogress "Calculating Time Evolution" for _ in 2:args.num_steps
         psi_tensor = noprime(U_tensor * psi_tensor)
         push!(results, MPS(psi_tensor, siteinds(psi_0_mps)))
     end
     return results
 end
 
-function evolve_serpinsky(psi_0_mps::MPS, num_steps::Int, step_size::Float64, sweeps::Int, max_bond_dim::Int)::Vector{MPS}
+function evolve_serpinsky(psi_0_mps::MPS, args::Args)::Vector{MPS}
     site_inds = siteinds(psi_0_mps)
     trotter_gates = ITensor[]
     for i in 1:(length(site_inds)-1)
         h_i = op("Proj1", site_inds[i]) * op("X", site_inds[i+1])
-        t = step_size * pi / (2 * sweeps)
+        t = args.step_size * pi / (2 * args.sweeps_per_time_step)
         push!(trotter_gates, exp(-im * t * h_i))
     end
 
     results = [psi_0_mps]
-    sizehint!(results, num_steps)
+    sizehint!(results, args.num_steps)
     psi_mps = psi_0_mps
 
     cutoff = 1E-8
     trotter_gates = reverse(trotter_gates)
     # append!(trotter_gates, reverse(trotter_gates))
 
-    @showprogress "Calculating Time Evolution" for step in 2:num_steps
+    @showprogress "Calculating Time Evolution" for step in 2:args.num_steps
 
-        for _ in 1:sweeps
-            psi_mps = apply(trotter_gates, psi_mps; maxdim=max_bond_dim, cutoff=0.0)
+        for _ in 1:args.sweeps_per_time_step
+            psi_mps = apply(trotter_gates, psi_mps; maxdim=args.max_bond_dim, cutoff=0.0)
             normalize!(psi_mps)
         end
         # if (step + 7) % 16 <= 7

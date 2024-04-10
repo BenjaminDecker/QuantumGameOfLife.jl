@@ -1,9 +1,9 @@
 import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
 using InteractiveUtils
 
-const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "only_outer", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
+const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
-const PLOTS_CHOICES = ["expect", "sse"]
+const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe"]
 const ALGORITHM_CHOICES = ["exact", "serpinsky"]
 
 s = ArgParseSettings(
@@ -82,42 +82,46 @@ end
 
 add_arg_group!(s, "Plot")
 @add_arg_table! s begin
-    "--plotting-frequency"
-    arg_type = Float64
-    default = 1.0
-    help = "Frequency at which time steps are plotted. Time between plot steps is calculated as (pi/2 * 1/PLOT_FREQUENCY * 1/STEP_SIZE)"
-
-    "--plots"
-    arg_type = String
-    nargs = '*'
-    default = String["expect"]
-    range_tester = x -> x in PLOTS_CHOICES
-    help = "Plots to create. Choices are: " * string(FILE_FORMAT_CHOICES)
-
-    "--plot-sse"
-    action = :store_true
-    help = "Plot the single site entropy"
-
-    "--plot-bond-dims"
-    action = :store_true
-    help = "Plot the bond dimensions of the mps"
-
-    "--plot-rounded"
-    action = :store_true
-    help = "Plot a rounded version of the probability"
-
-    "--plot-cbe"
-    action = :store_true
-    help = "Plot the center bipartite entropy"
-
     "--show"
     action = :store_true
     help = "Open plots in their respective default applications"
 
-    "--plot-file-path"
+    "--plot"
+    arg_type = PlotType
+    nargs = '*'
+    default = [ExpectationValue()]
+    # range_tester = x -> x in PLOTS_CHOICES
+    help = "Plots to create. Choices are: " * string(PLOTS_CHOICES)
+
+    # "--plot-sse"
+    # action = :store_true
+    # help = "Plot the single site entropy"
+
+    # "--plot-rounded"
+    # action = :store_true
+    # help = "Plot a rounded version of the probability"
+
+    # "--plot-bond-dims"
+    # action = :store_true
+    # help = "Plot the bond dimensions of the mps"
+
+    # "--plot-cbe"
+    # action = :store_true
+    # help = "Plot the center bipartite entropy"
+
+    # "--plot-classical"
+    # action = :store_true
+    # help = "Plot the time evolution of the corresponsing classical cellular automaton"
+
+    "--plotting-file-path"
     arg_type = String
     default = "plots"
     help = "Write files to a directory at the specified relative location"
+
+    "--plotting-frequency"
+    arg_type = Float64
+    default = 1.0
+    help = "Frequency at which time steps are plotted. Time between plot steps is calculated as (pi/2 * 1/PLOT_FREQUENCY * 1/STEP_SIZE)"
 
     "--file-formats"
     arg_type = String
@@ -125,10 +129,6 @@ add_arg_group!(s, "Plot")
     default = String["pdf"]
     range_tester = x -> x in FILE_FORMAT_CHOICES
     help = "File formats for plots. Choices are: " * string(FILE_FORMAT_CHOICES)
-
-    "--plot-fragmentation"
-    action = :store_true
-    help = "Plot the the fragment sizes of the state fragmentation of the Hamiltonian"
 end
 
 add_arg_group!(s, "Fragmentation Analysis")
@@ -146,4 +146,25 @@ add_arg_group!(s, "Fragmentation Analysis")
     # help = "Include frozen states. Frozen states are eigenstates of the Hamiltonian that are also product states in the z-basis. This option is ignored if none of the othr Fragmentation Analysis options is set."
 end
 
-get_args() = parse_args(s; as_symbols=true)
+function ArgParse.parse_item(::Type{PlotType}, x::AbstractString)
+    if x in ["classic", "classical"]
+        return Classical()
+    end
+    if x in ["expect", "expectation", "expectation_value"]
+        return ExpectationValue()
+    end
+    if x in ["sse", "single_site_entropy"]
+        return SingleSiteEntropy()
+    end
+    if x in ["round", "rounded"]
+        return Rounded()
+    end
+    if x in ["bond_dim", "bond_dims", "bond_dimension", "bond_dimensions"]
+        return BondDimensions()
+    end
+    if x in ["cbe", "center_bipartite_entropy"]
+        return CenterBipartiteEntropy()
+    end
+end
+
+get_args() = Args(parse_args(s; as_symbols=true))

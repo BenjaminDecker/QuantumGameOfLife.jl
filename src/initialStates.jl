@@ -40,11 +40,6 @@ function all_ket_1(site_inds::Vector{ITensors.Index{Int64}})::MPS
     MPS(site_inds, plist)
 end
 
-function only_outer(site_inds::Vector{ITensors.Index{Int64}})::MPS
-    plist = [i == 1 || i == length(site_inds) ? "1" : "0" for i in 1:length(site_inds)]
-    MPS(site_inds, plist)
-end
-
 function all_ket_0_but_outer(site_inds::Vector{ITensors.Index{Int64}})::MPS
     plist = [i == 1 || i == length(site_inds) ? "1" : "0" for i in 1:length(site_inds)]
     MPS(site_inds, plist)
