@@ -2,8 +2,8 @@
 
 ### A classical simulation of the Quantum Game of Life.
 
-Simulate and create beautiful plots of quantum systems inspired by classical cellular automata rules.
-The translation of classical rules into a quantum framework is inspired by [[1]](#1).
+Simulate and create beautiful plots of quantum cellular automata, inspired by their classical counterpart.
+The translation of classical rules into a quantum framework follows the method presented in [[1]](#1).
 
 
 
@@ -78,7 +78,8 @@ julia --project cli.jl --show --initial-state single --distance 1 --activation-i
 ## Work with the REPL
 Julia uses a just-in-time compiler which takes extra time when the code is executed the first time. Subsequent executions will reuse the compiled functions and run a lot faster, even with different input parameters. However, when using the CLI script, the compiled functions are lost between executions and have to be recompiled every time.
 
-To prevent that, you might want to work from inside the julia REPL, especially if you plan to create many quick plots.
+To prevent that, you might want to work from inside the julia REPL, especially if you plan to run many quick simulations.
+
 To do that, first open the julia REPL
 ```bash
 julia
@@ -101,4 +102,4 @@ QuantumGameOfLife.start("--show --initial-state blinker --file-formats pdf jpg -
 
 ## References
 <a id="1">[1]</a> 
-Ney, P. M., Notarnicola, S., Montangero, S., & Morigi, G. (2022). Entanglement in the quantum Game of Life. Physical Review A, 105(1), 012416.
+Ney, P. M., Notarnicola, S., Montangero, S., & Morigi, G. (2022). Entanglement in the quantum Game of Life. Physical Review A, 105(1), 012416, DOI: [10.1103/physreva.105.012416](http://dx.doi.org/10.1103/PhysRevA.105.012416)
