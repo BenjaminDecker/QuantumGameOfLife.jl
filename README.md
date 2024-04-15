@@ -12,43 +12,43 @@ The translation of classical rules into a quantum framework follows the method p
 ## Usage
 List all available parameters with
 ```bash
-julia --project cli.jl --help
+$ julia --project cli.jl --help
 ```
 <br/>
 
 Create and show a plot
 ```bash
-julia --project cli.jl --show
+$ julia --project cli.jl --show
 ```
 <br/>
 
 Use different initial state vectors
 ```bash
-julia --project cli.jl --show --initial-state triple_blinker
+$ julia --project cli.jl --show --initial-state triple_blinker
 ```
 <br/>
 
 Use a superposition of initial state vectors
 ```bash
-julia --project cli.jl --show --initial-state blinker triple_blinker
+$ julia --project cli.jl --show --initial-state blinker triple_blinker
 ```
 <br/>
 
 Plot additional measurement information
 ```bash
-julia --project cli.jl --show --plot expect sse rounded cbe
+$ julia --project cli.jl --show --plot expect sse rounded cbe
 ```
 <br/>
 
 Use different QCA rules
 ```bash
-julia --project cli.jl --show --distance 2 --activation-interval 2 3
+$ julia --project cli.jl --show --distance 2 --activation-interval 2 3
 ```
 <br/>
 
 Write to different file formats
 ```bash
-julia --project cli.jl --show --file-formats svg png pdf
+$ julia --project cli.jl --show --file-formats svg png pdf
 ```
 <br/>
 
@@ -65,13 +65,13 @@ julia --project cli.jl --show --initial-state blinker --algorithm 2tdvp --num-st
 
 Plots are saved in the plots directory by default, which can be changed with the --plotting-file-path argument (Make sure to create the specified directory first if it does not already exist)
 ```bash
-julia --project cli.jl --show --plotting-file-path plots2
+$ julia --project cli.jl --show --plotting-file-path plots2
 ```
 <br/>
 
 The plot at the top was created using the following command
 ```bash
-julia --project cli.jl --show --initial-state single --distance 1 --activation-interval 1 1 --step-size 0.5 --num-steps 100 --num-cells 13 --plot expect rounded cbe sse classical --file-formats svg
+$ julia --project cli.jl --show --initial-state single --distance 1 --activation-interval 1 1 --step-size 0.5 --num-steps 100 --num-cells 13 --plot expect rounded cbe sse classical --file-formats svg
 ```
 <br/>
 
@@ -80,22 +80,23 @@ Julia uses a just-in-time compiler which takes extra time when the code is execu
 
 To prevent that, you might want to work from inside the julia REPL, especially if you plan to run many quick simulations.
 
-To do that, first open the julia REPL
+To do that, make sure that your working directory is the project root directory and open the julia REPL
 ```bash
-julia
+$ cd QuantumGameOfLife.jl/
+$ julia
 ```
 then include the instantiation file and use the project.
 ```julia
-include("instantiate.jl")
-using QuantumGameOfLife
+julia> include("instantiate.jl")
+julia> using QuantumGameOfLife
 ```
 <br/>
 
 Afterwards, you can use the same command line options as with the CLI by passing them to the start function.
 ```julia
-QuantumGameOfLife.start("--show --distance 2 --activation-interval 2 3")
+julia> QuantumGameOfLife.start("--show --distance 2 --activation-interval 2 3")
 
-QuantumGameOfLife.start("--show --initial-state blinker --file-formats pdf jpg --plot expect sse rounded")
+julia> QuantumGameOfLife.start("--show --initial-state blinker --file-formats pdf jpg --plot expect sse rounded")
 ```
 
 <br/>
