@@ -14,7 +14,7 @@ end
 function evolve_tdvp(H::MPO, psi_0::MPS, args::Args)::Vector{MPS}
 
     # ---------- Data Preparation ----------
-    T = (-im) * (args.step_size / args.sweeps_per_time_step) * (pi / 2)
+    T = (-im) * (args.step_size / args.sweeps_per_time_step) * (pi / 2) / 2
     H_eff_layers_left::Vector{ITensor} = [TENSOR_1]
     H_eff_layers_right::Vector{ITensor} = [TENSOR_1]
     # max_bond_dims::Vector{Int} = [

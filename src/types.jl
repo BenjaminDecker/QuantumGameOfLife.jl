@@ -36,8 +36,11 @@ Base.isless(a::PlotType, b::PlotType) = ordering_index(a) < ordering_index(b)
 abstract type Algorithm end
 
 struct Exact <: Algorithm end
+name(::Exact) = "Exact"
 struct TDVP <: Algorithm end
+name(::TDVP) = "TDVP"
 struct Serpinsky <: Algorithm end
+name(::Serpinsky) = "Serpinksy"
 
 struct Args
     num_steps::Int

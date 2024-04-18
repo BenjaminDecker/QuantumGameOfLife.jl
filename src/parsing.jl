@@ -96,11 +96,6 @@ add_arg_group!(s, "Plot")
     default = "plots"
     help = "Write files to a directory at the specified relative location"
 
-    "--plotting-frequency"
-    arg_type = Float64
-    default = 1.0
-    help = "Frequency at which time steps are plotted. Time between plot steps is calculated as (pi/2 * 1/PLOT_FREQUENCY * 1/STEP_SIZE)"
-
     "--file-formats"
     arg_type = String
     nargs = '*'

@@ -136,7 +136,8 @@ function write_and_show(args::Args, id::String="")
         "$(args.activation_interval.stop)" *
         "-$(args.num_steps)" *
         "-$(replace(string(args.step_size), "." => ""))" *
-        "-$(args.periodic ? "periodic" : "open")"
+        "-$(args.periodic ? "periodic" : "open")" *
+        "-$(lowercase(name(args.algorithm)))"
     path =
         args.plotting_file_path *
         "/$(rule_filename)" *
