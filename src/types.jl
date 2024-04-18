@@ -32,6 +32,13 @@ ordering_index(_::CenterBipartiteEntropy) = 6
 
 Base.isless(a::PlotType, b::PlotType) = ordering_index(a) < ordering_index(b)
 
+
+abstract type Algorithm end
+
+struct Exact <: Algorithm end
+struct TDVP <: Algorithm end
+struct Serpinsky <: Algorithm end
+
 struct Args
     num_steps::Int
     distance::Int
@@ -39,7 +46,7 @@ struct Args
     periodic::Bool
     step_size::Float64
     initial_state::Vector{String}
-    algorithm::String
+    algorithm::Algorithm
     num_cells::Int
     sweeps_per_time_step::Int
     max_bond_dim::Int

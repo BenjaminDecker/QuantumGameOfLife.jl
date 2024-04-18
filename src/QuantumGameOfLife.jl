@@ -9,15 +9,15 @@ include("parsing.jl")
 include("hamiltonianMpoCreation.jl")
 include("initialStates.jl")
 include("timeEvolution.jl")
-include("measure.jl")
+include("tdvp.jl")
+include("measuring.jl")
 include("plotting.jl")
 include("fragmentationAnalysis.jl")
 
 export start
 
-function start()
-    start(get_args())
-end
+
+start() = start(get_args())
 
 function start(args::String)
     empty!(ARGS)
@@ -34,8 +34,10 @@ function start(args::Args)
         psi_0_mps = sum([getfield(QuantumGameOfLife, Symbol(state_name))(site_inds) for state_name in args.initial_state])
         normalize!(psi_0_mps)
         results =
-            if args.algorithm == "exact"
+            if args.algorithm == Exact()
                 evolve_exact(H_MPO, psi_0_mps, args)
+            elseif args.algorithm == TDVP()
+                evolve_tdvp(H_MPO, psi_0_mps, args)
             else
                 evolve_serpinsky(psi_0_mps, args)
             end
@@ -51,7 +53,10 @@ function start(args::Args)
 
     if args.plot_fragment_sizes
         plot_fragment_sizes(
-            fragment_sizes(H_MPO, args.periodic_boundaries),
+            fragment_sizes(
+                H_MPO,
+                args.periodic_boundaries
+            ),
             args
         )
     end

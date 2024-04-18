@@ -4,7 +4,7 @@ using InteractiveUtils
 const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
 const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe"]
-const ALGORITHM_CHOICES = ["exact", "serpinsky"]
+const ALGORITHM_CHOICES = ["exact", "tdvp", "serpinsky"]
 
 s = ArgParseSettings(
     prog="main.jl",
@@ -54,10 +54,9 @@ end
 add_arg_group!(s, "Algorithm")
 @add_arg_table! s begin
     "--algorithm"
-    arg_type = String
-    default = "exact"
-    range_tester = x -> x in ALGORITHM_CHOICES
-    help = "The algorithm used for the time evolution. Use 'exact' only for small numbers of cells. Choices are: " * string(ALGORITHM_CHOICES)
+    arg_type = Algorithm
+    default = Exact()
+    help = "The algorithm used for the time evolution. 'exact' is fast and most accurate for a small numbers of cells. Choices are: " * string(ALGORITHM_CHOICES)
 
     "--step-size"
     arg_type = Float64
@@ -90,28 +89,7 @@ add_arg_group!(s, "Plot")
     arg_type = PlotType
     nargs = '*'
     default = [ExpectationValue()]
-    # range_tester = x -> x in PLOTS_CHOICES
     help = "Plots to create. Choices are: " * string(PLOTS_CHOICES)
-
-    # "--plot-sse"
-    # action = :store_true
-    # help = "Plot the single site entropy"
-
-    # "--plot-rounded"
-    # action = :store_true
-    # help = "Plot a rounded version of the probability"
-
-    # "--plot-bond-dims"
-    # action = :store_true
-    # help = "Plot the bond dimensions of the mps"
-
-    # "--plot-cbe"
-    # action = :store_true
-    # help = "Plot the center bipartite entropy"
-
-    # "--plot-classical"
-    # action = :store_true
-    # help = "Plot the time evolution of the corresponsing classical cellular automaton"
 
     "--plotting-file-path"
     arg_type = String
@@ -147,24 +125,40 @@ add_arg_group!(s, "Fragmentation Analysis")
 end
 
 function ArgParse.parse_item(::Type{PlotType}, x::AbstractString)
+    x = lowercase(x)
     if x in ["classic", "classical"]
         return Classical()
     end
-    if x in ["expect", "expectation", "expectation_value"]
+    if x in ["expect", "expectation", "expectation_value", "expectation-value"]
         return ExpectationValue()
     end
-    if x in ["sse", "single_site_entropy"]
+    if x in ["sse", "single_site_entropy", "single-site-entropy"]
         return SingleSiteEntropy()
     end
     if x in ["round", "rounded"]
         return Rounded()
     end
-    if x in ["bond_dim", "bond_dims", "bond_dimension", "bond_dimensions"]
+    if x in ["bond_dim", "bond_dims", "bond_dimension", "bond_dimensions", "bond-dim", "bond-dims", "bond-dimension", "bond-dimensions"]
         return BondDimensions()
     end
-    if x in ["cbe", "center_bipartite_entropy"]
+    if x in ["cbe", "center_bipartite_entropy", "center-bipartite-entropy"]
         return CenterBipartiteEntropy()
     end
+    throw(ArgumentError("Not a valid plot type"))
+end
+
+function ArgParse.parse_item(::Type{Algorithm}, x::AbstractString)
+    x = lowercase(x)
+    if x == "exact"
+        return Exact()
+    end
+    if x == "tdvp"
+        return TDVP()
+    end
+    if x == "serpinsky"
+        return Serpinsky()
+    end
+    throw(ArgumentError("Not a valid Algorithm"))
 end
 
 get_args() = Args(parse_args(s; as_symbols=true))

@@ -52,16 +52,16 @@ $ julia --project cli.jl --show --file-formats svg png pdf
 ```
 <br/>
 
-<!-- Plot the classical evolution and mps bond dimension
+Plot the classical evolution and mps bond dimension
 ```bash
-julia --project cli.jl --show --initial-state blinker --plot-classical --plot-bond-dims
+julia --project cli.jl --show --plot classical expect bond_dims
 ```
-<br/> -->
+<br/>
 
-<!-- Try the TDVP algorithm (This can take a while)
+Try the TDVP algorithm (This command was used to create the plot at the top)
 ```bash
-julia --project cli.jl --show --initial-state blinker --algorithm 2tdvp --num-steps 1000 --plotting-frequency 10 --plot-bond-dims --num-cells 15
-``` -->
+julia --project cli.jl --show --initial-state single --algorithm tdvp --num-cells 33 --max-bond-dim 5 --num-steps 100 --sweeps-per-time-step 10 --plot classical expect sse rounded cbe --step-size 0.20
+```
 
 Plots are saved in the plots directory by default, which can be changed with the --plotting-file-path argument (Make sure to create the specified directory first if it does not already exist)
 ```bash
@@ -69,14 +69,8 @@ $ julia --project cli.jl --show --plotting-file-path plots2
 ```
 <br/>
 
-The plot at the top was created using the following command
-```bash
-$ julia --project cli.jl --show --initial-state single --distance 1 --activation-interval 1 1 --step-size 0.5 --num-steps 100 --num-cells 13 --plot expect rounded cbe sse classical --file-formats svg
-```
-<br/>
-
 ## Work with the REPL
-Julia uses a just-in-time compiler which takes extra time when the code is executed the first time. Subsequent executions will reuse the compiled functions and run a lot faster, even with different input parameters. However, when using the CLI script, the compiled functions are lost between executions and have to be recompiled every time.
+Julia uses a just-in-time compiler which takes extra time when code is executed the first time to compile functions before executing them. Subsequent executions will reuse the compiled functions and run a lot faster, even with different input parameters. However, when using the CLI script, the compiled functions are lost between executions and have to be recompiled every time.
 
 To prevent that, you might want to work from inside the julia REPL, especially if you plan to run many quick simulations.
 
@@ -92,11 +86,13 @@ julia> using QuantumGameOfLife
 ```
 <br/>
 
-Afterwards, you can use the same command line options as with the CLI by passing them to the start function.
+Afterwards, you can use the same command line options as with the CLI by passing them to the start function. To see the effect, compare the runtimes of two executions of the same function.
 ```julia
-julia> QuantumGameOfLife.start("--show --distance 2 --activation-interval 2 3")
+julia> @time QuantumGameOfLife.start("--show --distance 2 --activation-interval 2 3")
 
-julia> QuantumGameOfLife.start("--show --initial-state blinker --file-formats pdf jpg --plot expect sse rounded")
+julia> @time QuantumGameOfLife.start("--show --distance 2 --activation-interval 2 3")
+
+julia> @time QuantumGameOfLife.start("--show --initial-state blinker --file-formats pdf jpg --plot expect sse rounded")
 ```
 
 <br/>
