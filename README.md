@@ -54,13 +54,13 @@ $ julia --project cli.jl --show --file-formats svg png pdf
 
 Plot the classical evolution and mps bond dimension
 ```bash
-julia --project cli.jl --show --plot classical expect bond_dims
+$ julia --project cli.jl --show --plot classical expect bond_dims
 ```
 <br/>
 
 Try the TDVP algorithm (This command was used to create the plot at the top)
 ```bash
-julia --project cli.jl --show --initial-state single --algorithm tdvp --num-cells 33 --max-bond-dim 5 --num-steps 250 --sweeps-per-time-step 10 --plot classical expect sse rounded --step-size 0.4 --file-formats svg
+$ julia --project cli.jl --show --initial-state single --algorithm tdvp --num-cells 33 --max-bond-dim 5 --num-steps 250 --sweeps-per-time-step 10 --plot classical expect sse rounded --step-size 0.4 --file-formats svg
 ```
 
 Plots are saved in the plots directory by default, which can be changed with the --plotting-file-path argument. (Make sure to create the specified directory first if it does not already exist.)

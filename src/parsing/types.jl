@@ -63,25 +63,23 @@ struct Args
     show::Bool
 end
 
-function Args(args::Dict{Symbol,Any})
-    return Args(
-        args[:num_steps],
-        args[:distance],
-        (args[:activation_interval][1]):(args[:activation_interval][2]),
-        args[:periodic_boundaries],
-        args[:step_size],
-        args[:initial_state],
-        args[:algorithm],
-        args[:num_cells],
-        args[:sweeps_per_time_step],
-        args[:max_bond_dim],
-        args[:periodic_boundaries],
-        Set{PlotType}(args[:plot]),
-        args[:plotting_file_path],
-        Set{String}(args[:file_formats]),
-        args[:dpi],
-        args[:plot_eigval_vs_cbe],
-        args[:plot_fragment_sizes],
-        args[:show]
-    )
-end
+Args(args::Dict{Symbol,Any})::Args = Args(
+    args[:num_steps],
+    args[:distance],
+    (args[:activation_interval][1]):(args[:activation_interval][2]),
+    args[:periodic_boundaries],
+    args[:step_size],
+    args[:initial_state],
+    args[:algorithm],
+    args[:num_cells],
+    args[:sweeps_per_time_step],
+    args[:max_bond_dim],
+    args[:periodic_boundaries],
+    Set{PlotType}(args[:plot]),
+    args[:plotting_file_path],
+    Set{String}(args[:file_formats]),
+    args[:dpi],
+    args[:plot_eigval_vs_cbe],
+    args[:plot_fragment_sizes],
+    args[:show]
+)
