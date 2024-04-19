@@ -1,10 +1,12 @@
 import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
 using InteractiveUtils
 
+include("types.jl")
+
 const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
 const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe"]
-const ALGORITHM_CHOICES = ["exact", "tdvp", "serpinsky"]
+const ALGORITHM_CHOICES = ["exact", "tdvp", "sierpinski"]
 
 s = ArgParseSettings(
     prog="main.jl",
@@ -156,7 +158,7 @@ function ArgParse.parse_item(::Type{Algorithm}, x::AbstractString)
         return TDVP()
     end
     if x == "serpinsky"
-        return Serpinsky()
+        return Sierpinski()
     end
     throw(ArgumentError("Not a valid Algorithm"))
 end

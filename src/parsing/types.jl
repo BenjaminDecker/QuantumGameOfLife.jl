@@ -39,8 +39,8 @@ struct Exact <: Algorithm end
 name(::Exact) = "Exact"
 struct TDVP <: Algorithm end
 name(::TDVP) = "TDVP"
-struct Serpinsky <: Algorithm end
-name(::Serpinsky) = "Serpinksy"
+struct Sierpinski <: Algorithm end
+name(::Sierpinski) = "Sierpinski"
 
 struct Args
     num_steps::Int

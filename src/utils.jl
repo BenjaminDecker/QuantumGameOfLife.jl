@@ -1,4 +1,3 @@
-using ITensors
 using Combinatorics
 
 function bipartite_entropy(psi::MPS, seperator_index::Int)::Float64

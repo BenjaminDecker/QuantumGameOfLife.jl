@@ -1,4 +1,3 @@
-using ITensors
 using Random
 
 function blinker(site_inds::Vector{ITensors.Index{Int64}}, width::Int=1)::MPS

@@ -2,17 +2,18 @@ module QuantumGameOfLife
 
 using ITensors
 using InteractiveUtils
+using ProgressMeter
 
-include("types.jl")
+include("parsing/parsing.jl")
 include("utils.jl")
-include("parsing.jl")
 include("hamiltonianMpoCreation.jl")
 include("initialStates.jl")
-include("timeEvolution.jl")
-include("tdvp.jl")
+include("algorithms/exact.jl")
+include("algorithms/tdvp.jl")
+include("algorithms/sierpinski.jl")
 include("measuring.jl")
 include("plotting.jl")
-include("fragmentationAnalysis.jl")
+include("fragmentation_analysis/fragmentationAnalysis.jl")
 
 export start
 
@@ -33,15 +34,7 @@ function start(args::Args)
     if length(args.initial_state) > 0 && length(args.plots) > 0
         psi_0_mps = sum([getfield(QuantumGameOfLife, Symbol(state_name))(site_inds) for state_name in args.initial_state])
         normalize!(psi_0_mps)
-        results =
-            if args.algorithm == Exact()
-                evolve_exact(H_MPO, psi_0_mps, args)
-            elseif args.algorithm == TDVP()
-                evolve_tdvp(H_MPO, psi_0_mps, args)
-            else
-                evolve_serpinsky(psi_0_mps, args)
-            end
-
+        results = evolve(args.algorithm, H_MPO, psi_0_mps, args)
         measurements = measure(results, args)
         plot(measurements, args)
     end # if

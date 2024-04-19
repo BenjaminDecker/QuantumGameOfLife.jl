@@ -1,5 +1,3 @@
-using ITensors
-
 """
     build_MPO_hamiltonian(
     site_inds::Vector{ITensors.Index{Int64}},

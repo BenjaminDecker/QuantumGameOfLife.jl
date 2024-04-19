@@ -1,4 +1,3 @@
-using ITensors
 using PyPlot
 using SplitApplyCombine
 using DefaultApplication

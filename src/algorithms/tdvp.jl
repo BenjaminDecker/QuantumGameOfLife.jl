@@ -1,5 +1,3 @@
-using ITensors
-
 const TENSOR_1::ITensor = ITensor(1)
 
 struct Tdvp_data
@@ -11,7 +9,7 @@ struct Tdvp_data
     max_bond_dims::Vector{Int}
 end
 
-function evolve_tdvp(H::MPO, psi_0::MPS, args::Args)::Vector{MPS}
+function evolve(::TDVP, H::MPO, psi_0::MPS, args::Args)::Vector{MPS}
 
     # ---------- Data Preparation ----------
     T = (-im) * (args.step_size / args.sweeps_per_time_step) * (pi / 2) / 2

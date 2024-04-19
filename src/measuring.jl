@@ -1,6 +1,3 @@
-using ITensors
-using ProgressMeter
-
 measure(::ExpectationValue, state::MPS)::Vector{Float64} =
     expect(state, "Proj1")
 
