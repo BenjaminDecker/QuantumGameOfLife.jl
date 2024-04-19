@@ -102,6 +102,11 @@ add_arg_group!(s, "Plot")
     default = String["pdf"]
     range_tester = x -> x in FILE_FORMAT_CHOICES
     help = "File formats for plots. Choices are: " * string(FILE_FORMAT_CHOICES)
+
+    "--dpi"
+    arg_type = Float64
+    default = 200.0
+    help = "The dpi used for the plot. Only relevant for raster image formats."
 end
 
 add_arg_group!(s, "Fragmentation Analysis")

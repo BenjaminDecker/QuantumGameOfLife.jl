@@ -147,7 +147,7 @@ function write_and_show(args::Args, id::String="")
 
     for suffix in args.file_formats
         file_path = "$(path).$(suffix)"
-        savefig(file_path, bbox_inches="tight")
+        savefig(file_path, bbox_inches="tight"; dpi=args.dpi)
         if args.show
             DefaultApplication.open(file_path)
         end

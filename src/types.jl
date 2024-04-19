@@ -57,6 +57,7 @@ struct Args
     plots::Set{PlotType}
     plotting_file_path::String
     file_formats::Set{String}
+    dpi::Float64
     plot_eigval_vs_cbe::Bool
     plot_fragment_sizes::Bool
     show::Bool
@@ -78,6 +79,7 @@ function Args(args::Dict{Symbol,Any})
         Set{PlotType}(args[:plot]),
         args[:plotting_file_path],
         Set{String}(args[:file_formats]),
+        args[:dpi],
         args[:plot_eigval_vs_cbe],
         args[:plot_fragment_sizes],
         args[:show]
