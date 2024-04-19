@@ -2,33 +2,33 @@ abstract type PlotType end
 
 abstract type HeatmapContinuous <: PlotType end
 struct ExpectationValue <: HeatmapContinuous end
-name(_::ExpectationValue) = "Expectation Value"
-label(_::ExpectationValue) = "Expectation\nValue"
-ordering_index(_::ExpectationValue) = 2
+name(::ExpectationValue) = "Expectation Value"
+label(::ExpectationValue) = "Expectation\nValue"
+ordering_index(::ExpectationValue) = 2
 struct SingleSiteEntropy <: HeatmapContinuous end
-name(_::SingleSiteEntropy) = "Single Site Entropy"
-label(_::SingleSiteEntropy) = "Single Site\nEntropy"
-ordering_index(_::SingleSiteEntropy) = 3
+name(::SingleSiteEntropy) = "Single Site Entropy"
+label(::SingleSiteEntropy) = "Single Site\nEntropy"
+ordering_index(::SingleSiteEntropy) = 3
 
 abstract type HeatmapDiscrete <: PlotType end
 struct Rounded <: HeatmapDiscrete end
-name(_::Rounded) = "Rounded"
-label(_::Rounded) = "Rounded"
-ordering_index(_::Rounded) = 4
+name(::Rounded) = "Rounded"
+label(::Rounded) = "Rounded"
+ordering_index(::Rounded) = 4
 struct BondDimensions <: HeatmapDiscrete end
-name(_::BondDimensions) = "Bond Dimensions"
-label(_::BondDimensions) = "Bond\nDimensions"
-ordering_index(_::BondDimensions) = 5
+name(::BondDimensions) = "Bond Dimensions"
+label(::BondDimensions) = "Bond\nDimensions"
+ordering_index(::BondDimensions) = 5
 struct Classical <: HeatmapDiscrete end
-name(_::Classical) = "Classical"
-label(_::Classical) = "Classical"
-ordering_index(_::Classical) = 1
+name(::Classical) = "Classical"
+label(::Classical) = "Classical"
+ordering_index(::Classical) = 1
 
 abstract type LinePlot <: PlotType end
 struct CenterBipartiteEntropy <: LinePlot end
-name(_::CenterBipartiteEntropy) = "Center Bipartite Entropy"
-label(_::CenterBipartiteEntropy) = "Center\nBipartite\nEntropy"
-ordering_index(_::CenterBipartiteEntropy) = 6
+name(::CenterBipartiteEntropy) = "Center Bipartite Entropy"
+label(::CenterBipartiteEntropy) = "Center\nBipartite\nEntropy"
+ordering_index(::CenterBipartiteEntropy) = 6
 
 Base.isless(a::PlotType, b::PlotType) = ordering_index(a) < ordering_index(b)
 

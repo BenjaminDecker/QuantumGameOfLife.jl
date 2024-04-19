@@ -1,19 +1,19 @@
 using ITensors
 using ProgressMeter
 
-measure(state::MPS, _::ExpectationValue)::Vector{Float64} =
+measure(::ExpectationValue, state::MPS)::Vector{Float64} =
     expect(state, "Proj1")
 
-measure(state::MPS, _::Rounded)::Vector{Float64} =
-    round.(measure(state, ExpectationValue()))
+measure(::Rounded, state::MPS)::Vector{Float64} =
+    round.(measure(ExpectationValue(), state))
 
-measure(state::MPS, _::BondDimensions)::Vector{Float64} =
+measure(::BondDimensions, state::MPS)::Vector{Float64} =
     [dim(linkind(state, i)) for i in 1:(length(state)-1)]
 
-measure(state::MPS, _::CenterBipartiteEntropy)::Vector{Float64} =
+measure(::CenterBipartiteEntropy, state::MPS)::Vector{Float64} =
     [center_bipartite_entropy(state)]
 
-function measure(state::MPS, _::SingleSiteEntropy)::Vector{Float64}
+function measure(::SingleSiteEntropy, state::MPS)::Vector{Float64}
     site_inds = siteinds(state)
     num_sites = length(site_inds)
     sse = Vector{Float64}(undef, num_sites)
@@ -30,19 +30,11 @@ function measure(state::MPS, _::SingleSiteEntropy)::Vector{Float64}
 end
 
 function measure(
+    ::Classical,
     states::Vector{MPS},
-    _::Args,
-    plot::PlotType
+    args::Args
 )::Vector{Vector{Float64}}
-    return @showprogress desc = "Measuring $(name(plot))" map(state -> measure(state, plot), states)
-end
-
-function measure(
-    states::Vector{MPS},
-    args::Args,
-    _::Classical
-)::Vector{Vector{Float64}}
-    states = Vector{Vector{Bool}}([measure(states[1], Rounded())])
+    states = Vector{Vector{Bool}}([measure(Rounded(), states[1])])
     for step in 2:args.num_steps
         last_state = states[step-1]
         next_state = fill(false, length(states[1]))
@@ -70,12 +62,20 @@ function measure(
 end
 
 function measure(
+    plot_type::PlotType,
+    states::Vector{MPS},
+    ::Args
+)::Vector{Vector{Float64}}
+    return @showprogress desc = "Measuring $(name(plot_type))" map(state -> measure(plot_type, state), states)
+end
+
+function measure(
     states::Vector{MPS},
     args::Args
 )::Dict{PlotType,Vector{Vector{Float64}}}
     measurements = Dict{PlotType,Vector{Vector{Float64}}}()
-    for plot in args.plots
-        measurements[plot] = measure(states, args, plot)
+    for plot_type in args.plots
+        measurements[plot_type] = measure(plot_type, states, args)
     end
     return measurements
 end
