@@ -37,8 +37,10 @@ abstract type Algorithm end
 
 struct Exact <: Algorithm end
 name(::Exact) = "Exact"
-struct TDVP <: Algorithm end
-name(::TDVP) = "TDVP"
+struct TDVP1 <: Algorithm end
+name(::TDVP1) = "TDVP1"
+struct TDVP2 <: Algorithm end
+name(::TDVP2) = "TDVP2"
 struct Sierpinski <: Algorithm end
 name(::Sierpinski) = "Sierpinski"
 
@@ -53,6 +55,7 @@ struct Args
     num_cells::Int
     sweeps_per_time_step::Int
     max_bond_dim::Int
+    svd_epsilon::Float64
     periodic_boundaries::Bool
     plots::Set{PlotType}
     plotting_file_path::String
@@ -74,6 +77,7 @@ Args(args::Dict{Symbol,Any})::Args = Args(
     args[:num_cells],
     args[:sweeps_per_time_step],
     args[:max_bond_dim],
+    args[:svd_epsilon],
     args[:periodic_boundaries],
     Set{PlotType}(args[:plot]),
     args[:plotting_file_path],

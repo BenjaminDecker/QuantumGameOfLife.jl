@@ -6,7 +6,7 @@ include("types.jl")
 const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
 const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe"]
-const ALGORITHM_CHOICES = ["exact", "tdvp", "sierpinski"]
+const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"]
 
 s = ArgParseSettings(
     prog="main.jl",
@@ -77,7 +77,7 @@ add_arg_group!(s, "Algorithm")
 
     "--svd-epsilon"
     arg_type = Float64
-    default = 0.00005
+    default = 1e-10
     help = "A measure of accuracy for the truncation step after splitting a mps tensor. This parameter controls how quickly the bond dimension of the mps grows during the simulation. Lower means more accurate, but slower."
 end
 
@@ -154,8 +154,11 @@ function ArgParse.parse_item(::Type{Algorithm}, x::AbstractString)
     if x == "exact"
         return Exact()
     end
-    if x == "tdvp"
-        return TDVP()
+    if x == "tdvp1"
+        return TDVP1()
+    end
+    if x == "tdvp2"
+        return TDVP2()
     end
     if x == "serpinsky"
         return Sierpinski()

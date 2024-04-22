@@ -29,25 +29,26 @@ end
 function start(args::Args)
     ITensors.set_warn_order(args.num_cells * 2 + 1)
     site_inds = siteinds("Qubit", args.num_cells)
-    H_MPO = build_MPO_hamiltonian(site_inds, args)
+    H = build_MPO_hamiltonian(site_inds, args)
 
     if length(args.initial_state) > 0 && length(args.plots) > 0
-        psi_0_mps = sum([getfield(QuantumGameOfLife, Symbol(state_name))(site_inds) for state_name in args.initial_state])
-        normalize!(psi_0_mps)
-        results = evolve(args.algorithm, H_MPO, psi_0_mps, args)
+        psi_0 = sum([getfield(QuantumGameOfLife, Symbol(state_name))(site_inds) for state_name in args.initial_state])
+        normalize!(psi_0)
+
+        results = evolve(args.algorithm, psi_0, H, args)
         measurements = measure(results, args)
         plot(measurements, args)
     end # if
 
     if args.plot_eigval_vs_cbe
-        eigval, cbe = eigval_vs_cbe(H_MPO)
+        eigval, cbe = eigval_vs_cbe(H)
         plot_eigval_vs_cbe(eigval, cbe, args)
     end
 
     if args.plot_fragment_sizes
         plot_fragment_sizes(
             fragment_sizes(
-                H_MPO,
+                H,
                 args.periodic_boundaries
             ),
             args

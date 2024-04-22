@@ -1,5 +1,5 @@
-function evolve(::Sierpinski, ::MPO, psi_0_mps::MPS, args::Args)::Vector{MPS}
-    site_inds = siteinds(psi_0_mps)
+function evolve(::Sierpinski, psi_0::MPS, ::MPO, args::Args)::Vector{MPS}
+    site_inds = siteinds(psi_0)
     trotter_gates = ITensor[]
     for i in 1:(length(site_inds)-1)
         h_i = op("Proj1", site_inds[i]) * op("X", site_inds[i+1])
@@ -7,9 +7,9 @@ function evolve(::Sierpinski, ::MPO, psi_0_mps::MPS, args::Args)::Vector{MPS}
         push!(trotter_gates, exp(-im * t * h_i))
     end
 
-    results = [psi_0_mps]
+    results = [psi_0]
     sizehint!(results, args.num_steps)
-    psi_mps = psi_0_mps
+    psi_mps = psi_0
 
     cutoff = 1E-8
     trotter_gates = reverse(trotter_gates)
