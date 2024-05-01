@@ -9,63 +9,73 @@ The translation of classical rules into a quantum framework follows the method p
 
 ![](plots/plot.svg)
 
+## Setup
+Before running the code for the first time, install all dependencies by running the instantiation script from the project directory
+
+```bash
+$ cd QuantumGameOfLife.jl/
+$ julia instantiate.jl
+```
+
+The script only takes significant time when running for the first time, so it is also called from the cli script to make sure everything is set up correctly.
+
 ## Usage
 List all available parameters with
 ```bash
-$ julia --project cli.jl --help
+$ julia cli.jl --help
 ```
 <br/>
 
 Create and show a plot
 ```bash
-$ julia --project cli.jl --show
+$ julia cli.jl --show
 ```
 <br/>
 
 Use different initial state vectors
 ```bash
-$ julia --project cli.jl --show --initial-state triple_blinker
+$ julia cli.jl --show --initial-state triple_blinker
 ```
 <br/>
 
 Use a superposition of initial state vectors
 ```bash
-$ julia --project cli.jl --show --initial-state blinker triple_blinker
+$ julia cli.jl --show --initial-state blinker triple_blinker
 ```
 <br/>
 
 Plot additional measurement information
 ```bash
-$ julia --project cli.jl --show --plot expect sse rounded cbe
+$ julia cli.jl --show --plot expect sse rounded cbe
 ```
 <br/>
 
 Use different QCA rules
 ```bash
-$ julia --project cli.jl --show --distance 2 --activation-interval 2 3
+$ julia cli.jl --show --distance 2 --activation-interval 2 3
 ```
 <br/>
 
 Write to different file formats
 ```bash
-$ julia --project cli.jl --show --file-formats svg png pdf
+$ julia cli.jl --show --file-formats svg png pdf
 ```
 <br/>
 
 Plot the classical evolution and mps bond dimension
 ```bash
-$ julia --project cli.jl --show --plot classical expect bond_dims
+$ julia cli.jl --show --plot classical expect bond_dims
 ```
 <br/>
 
 Try the TDVP algorithm (This command was used to create the plot at the top)
 ```bash
-$ julia --project cli.jl --show --initial-state single --algorithm tdvp1 --num-cells 33 --max-bond-dim 5 --num-steps 250 --sweeps-per-time-step 10 --plot classical expect sse rounded --step-size 0.4 --file-formats svg
+$ julia cli.jl --show --initial-state single --algorithm tdvp1 --num-cells 33 --max-bond-dim 5 --num-steps 250 --sweeps-per-time-step 10 --plot classical expect sse rounded --step-size 0.4 --file-formats svg
 ```
 
 Plots are saved in the plots directory by default, which can be changed with the --plotting-file-path argument. (Make sure to create the specified directory first if it does not already exist.)
 ```bash
-$ julia --project cli.jl --show --plotting-file-path plots2
+$ julia cli.jl --show --plotting-file-path plots2
 ```
 <br/>
 
