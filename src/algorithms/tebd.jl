@@ -1,12 +1,16 @@
 """
-    evolve_tebd(distance::Int, lower_activation_bound::Int, upper_activation_bound::Int, periodic::Bool, psi_0_mps::MPS, num_steps::Int, step_size::Float64)::Vector{MPS}
+    evolve(::TEBD, psi_0::MPS, H::MPO, args::Args)::Vector{MPS}
 
-Calculate a time evolution of `psi_0_mps` with the TEBD algorithm.
+Calculate a time evolution of `psi_0` with the TEBD algorithm.
 
 Inspired by code from [ITensors.jl](https://itensor.github.io/ITensors.jl/dev/tutorials/MPSTimeEvolution.html)
 """
-function evolve_tebd(distance::Int, lower_activation_bound::Int, upper_activation_bound::Int, periodic::Bool, psi_0_mps::MPS, num_steps::Int, step_size::Float64, sweeps::Int, max_bond_dim::Int)::Vector{MPS}
-    site_inds = siteinds(psi_0_mps)
+function evolve(::TEBD, psi_0_vec::Vector{MPS}, H::MPO, args::Args)::Vector{Vector{MPS}}
+
+    return [[psi_0 for _ in 1:args.num_steps] for psi_0 in args.initial_states]
+
+    # TODO
+    site_inds = siteinds(psi_0)
     trotter_gates = ITensor[]
 
     for i in eachindex(site_inds)

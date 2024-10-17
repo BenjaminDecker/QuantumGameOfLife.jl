@@ -36,26 +36,20 @@ function measure(
         last_state = states[step-1]
         next_state = copy(last_state)
         for index in eachindex(next_state)
-            alive_neighbors = 0
-            for offset in 1:args.distance
-                alive_neighbors += get_value(
-                    last_state,
-                    index - offset,
-                    args.periodic
-                )
-                alive_neighbors += get_value(
-                    last_state,
-                    index + offset,
-                    args.periodic
-                )
-            end
-            if alive_neighbors in args.activation_interval
-                next_state[index] = !last_state[index]
-            end
+            conf_id = configuration_id(last_state, index, args)
+            next_state[index] = (args.rule & 1 << conf_id) != 0
         end
         push!(states, next_state)
     end
     return Vector{Vector{Float64}}(states)
+end
+
+function measure(
+    ::Autocorrelation,
+    states::Vector{MPS},
+    args::Args
+)::Vector{Vector{Float64}}
+    return [[abs(inner(states[1], state))] for state in states]
 end
 
 function measure(
@@ -75,6 +69,25 @@ function measure(
         measurements[plot_type] = measure(plot_type, states, args)
     end
     return measurements
+end
+
+function configuration_id(state::Vector{Bool}, index::Int, args::Args)::Int
+    id = 0
+    for offset in (-args.distance):(+args.distance)
+        i = index + offset
+        bitshifts = -offset + args.distance
+        if checkbounds(Bool, state, i)
+            id += state[i] << bitshifts
+        elseif args.periodic
+            if i < 1
+                i += args.num_cells
+            elseif i > args.num_cells
+                i -= args.num_cells
+            end
+            id += state[i] << bitshifts
+        end
+    end
+    return id
 end
 
 function get_value(state::Vector{Bool}, index::Int, periodic::Bool)::Int

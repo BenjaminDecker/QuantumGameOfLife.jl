@@ -6,16 +6,20 @@ function blinker(site_inds::Vector{ITensors.Index{Int64}}, width::Int=1)::MPS
     MPS(site_inds, plist)
 end
 
+blinker_wide(site_inds::Vector{ITensors.Index{Int64}})::MPS = blinker(site_inds, 2)
+
 function triple_blinker(site_inds::Vector{ITensors.Index{Int64}})::MPS
     mid = floor(length(site_inds) / 2) + 1
     plist = [i == (mid - 2) || i == mid || i == (mid + 2) ? "1" : "0" for i in 1:length(site_inds)]
     MPS(site_inds, plist)
 end
 
-function alternating(site_inds::Vector{ITensors.Index{Int64}})::MPS
-    plist = [i % 2 == 0 ? "1" : "0" for i in 1:length(site_inds)]
+function alternating(site_inds::Vector{ITensors.Index{Int64}}, reversed::Bool=false)::MPS
+    plist = [xor(i % 2 == 0, reversed) ? "1" : "0" for i in 1:length(site_inds)]
     MPS(site_inds, plist)
 end
+
+alternating_reversed(site_inds::Vector{ITensors.Index{Int64}})::MPS = alternating(site_inds, true)
 
 function single(site_inds::Vector{ITensors.Index{Int64}}, position::Int=-1)::MPS
     if !(position in 1:length(site_inds))
@@ -25,8 +29,24 @@ function single(site_inds::Vector{ITensors.Index{Int64}}, position::Int=-1)::MPS
     MPS(site_inds, plist)
 end
 
-function single_bottom(site_inds::Vector{ITensors.Index{Int64}})::MPS
-    single(site_inds, 1)
+function single_wide(site_inds::Vector{ITensors.Index{Int64}}, position::Int=-1)::MPS
+    if !(position in 1:length(site_inds))
+        position = floor(length(site_inds) / 2) + 1
+    end
+    plist = [i == position || i == (position - 1) ? "1" : "0" for i in 1:length(site_inds)]
+    MPS(site_inds, plist)
+end
+
+single_bottom(site_inds::Vector{ITensors.Index{Int64}})::MPS = single(site_inds, firstindex(site_inds))
+
+single_top(site_inds::Vector{ITensors.Index{Int64}})::MPS = single(site_inds, lastindex(site_inds))
+
+function single_bottom_half(site_inds::Vector{ITensors.Index{Int64}})::MPS
+    single(site_inds, Int(length(site_inds) / 4))
+end
+
+function single_top_half(site_inds::Vector{ITensors.Index{Int64}})::MPS
+    single(site_inds, Int(length(site_inds) - length(site_inds) / 4))
 end
 
 function all_ket_0(site_inds::Vector{ITensors.Index{Int64}})::MPS
@@ -73,7 +93,9 @@ function single_bottom_blinker_top(site_inds::Vector{ITensors.Index{Int64}})::MP
     MPS(site_inds, plist)
 end
 
-function random(site_inds::Vector{ITensors.Index{Int64}})::MPS
+random(site_inds::Vector{ITensors.Index{Int64}})::MPS = randomMPS(site_inds)
+
+function random_product(site_inds::Vector{ITensors.Index{Int64}})::MPS
     plist = map(x -> x ? "1" : "0", bitrand(length(site_inds)))
     MPS(site_inds, plist)
 end

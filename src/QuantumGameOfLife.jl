@@ -7,18 +7,15 @@ using ProgressMeter
 include("parsing/parsing.jl")
 include("utils.jl")
 include("hamiltonianMpoCreation.jl")
-include("initialStates.jl")
 include("algorithms/exact.jl")
 include("algorithms/tdvp.jl")
 include("algorithms/sierpinski.jl")
+include("algorithms/tebd.jl")
 include("measuring.jl")
 include("plotting.jl")
 include("fragmentation_analysis/fragmentationAnalysis.jl")
 
 export start
-
-
-start() = start(get_args())
 
 function start(args::String)
     empty!(ARGS)
@@ -26,17 +23,28 @@ function start(args::String)
     start()
 end
 
+start() = start(get_args())
+
+start(::Type{Nothing}) = return
+
 function start(args::Args)
     ITensors.set_warn_order(args.num_cells * 2 + 1)
-    site_inds = siteinds("Qubit", args.num_cells)
-    H = build_MPO_hamiltonian(site_inds, args)
+    H = build_MPO_hamiltonian(args.site_inds, args)
 
-    if length(args.initial_state) > 0 && length(args.plots) > 0
-        psi_0 = sum([getfield(QuantumGameOfLife, Symbol(state_name))(site_inds) for state_name in args.initial_state])
-        normalize!(psi_0)
+    if !isempty(args.initial_states) && !isempty(args.plots)
+        psi_0_vec = if args.superposition
+            [normalize(sum(args.initial_states))]
+        else
+            [normalize(state) for state in args.initial_states]
+        end
 
-        results = evolve(args.algorithm, psi_0, H, args)
-        measurements = measure(results, args)
+        # If the only given plot is classical, no need to run quantum versions
+        results = if length(args.plots) == 1 && in(Classical(), args.plots)
+            [[psi_0 for _ in 1:args.num_steps] for psi_0 in psi_0_vec]
+        else
+            evolve(args.algorithm, psi_0_vec, H, args)
+        end
+        measurements = [measure(result, args) for result in results]
         plot(measurements, args)
     end # if
 

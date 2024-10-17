@@ -17,7 +17,7 @@ $ cd QuantumGameOfLife.jl/
 $ julia instantiate.jl
 ```
 
-The script only takes significant time when running for the first time, so it is also called from the cli script to make sure everything is set up correctly.
+The script only takes significant time when running for the first time, so it is also called from the cli script to make sure everything is set up correctly every time.
 
 ## Usage
 List all available parameters with
@@ -34,37 +34,25 @@ $ julia cli.jl --show
 
 Use different initial state vectors
 ```bash
-$ julia cli.jl --show --initial-state triple_blinker
+$ julia cli.jl --show --initial-state blinker triple_blinker
 ```
 <br/>
 
 Use a superposition of initial state vectors
 ```bash
-$ julia cli.jl --show --initial-state blinker triple_blinker
+$ julia cli.jl --show --initial-state blinker triple_blinker --superposition
 ```
 <br/>
 
 Plot additional measurement information
 ```bash
-$ julia cli.jl --show --plot expect sse rounded cbe
-```
-<br/>
-
-Use different QCA rules
-```bash
-$ julia cli.jl --show --distance 2 --activation-interval 2 3
+$ julia cli.jl --show --plot expect sse rounded cbe autocorrelation
 ```
 <br/>
 
 Write to different file formats
 ```bash
 $ julia cli.jl --show --file-formats svg png pdf
-```
-<br/>
-
-Plot the classical evolution and mps bond dimension
-```bash
-$ julia cli.jl --show --plot classical expect bond_dims
 ```
 <br/>
 
@@ -79,34 +67,56 @@ $ julia cli.jl --show --plotting-file-path plots2
 ```
 <br/>
 
+### Use different QCA rules
+Provide a Wolfram code via the rule parameter to create quantum analogues to classical elementary cellular automata and compare the results to the classical case.
+Use a distance of 1 to get equivalents to elementary cellular automata where the rule labels the corresponding Wolfram code.
+```bash
+$ julia cli.jl --show --plot classical expect --distance 1 --rule 108
+$ julia cli.jl --show --plot classical expect --distance 1 --rule 30
+$ julia cli.jl --show --plot classical expect --distance 1 --rule 150
+```
+<br/>
+
+Use higher distances and extend the Wolfram code to larger numbers
+```bash
+$ julia cli.jl --show --plot classical expect --distance 2 --rule 2266898040
+```
+<br/>
+
+Use periodic boundary conditions
+```bash
+$ julia cli.jl --show --periodic-boundaries
+```
+<br/>
+
 ## Work with the REPL
 Julia uses a just-in-time compiler which takes extra time when code is executed the first time to compile functions before executing them. Subsequent executions will reuse the compiled functions and run a lot faster, even with different input parameters. However, when using the CLI script, the compiled functions are lost between executions and have to be recompiled every time.
 
 To prevent that, you might want to work from inside the julia REPL, especially if you plan to run many quick simulations.
 
-To do that, make sure that your working directory is the project root directory and open the julia REPL
+To do so, make sure that your working directory is the project root directory and open the julia REPL
 ```bash
 $ cd QuantumGameOfLife.jl/
 $ julia
 ```
-then include the instantiation file and use the project.
+then, include the instantiation file and use the project.
 ```julia
 julia> include("instantiate.jl")
 julia> using QuantumGameOfLife
 ```
 <br/>
 
-Afterwards, you can use the same command line options as with the CLI by passing them to the start function. To see the effect, compare the runtimes of two executions of the same function.
+Afterwards, you can use the same command line options as with the CLI by passing them to the start function. To see the effect, compare the runtimes of two consecutive executions of the same function.
 ```julia
-julia> @time QuantumGameOfLife.start("--show --distance 2 --activation-interval 2 3")
+julia> @time QuantumGameOfLife.start()
 
-julia> @time QuantumGameOfLife.start("--show --distance 2 --activation-interval 2 3")
+julia> @time QuantumGameOfLife.start()
 
-julia> @time QuantumGameOfLife.start("--show --initial-state blinker --file-formats pdf jpg --plot expect sse rounded")
+julia> @time QuantumGameOfLife.start("--show --plot classical expect --distance 1 --rule 150")
 ```
 
 <br/>
 
 ## References
 <a id="1">[1]</a> 
-Ney, P. M., Notarnicola, S., Montangero, S., & Morigi, G. (2022). Entanglement in the quantum Game of Life. Physical Review A, 105(1), 012416, DOI: [10.1103/physreva.105.012416](http://dx.doi.org/10.1103/PhysRevA.105.012416)
+Benjamin Decker. “Creating a Quantum Analogue to an Arbitrary Classical Elementary Cellular Automaton”. en. MA thesis. Technical University of Munich, 2024-10. URL: https://mediatum.ub.tum.de/1756463

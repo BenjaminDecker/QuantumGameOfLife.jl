@@ -2,36 +2,64 @@ import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_ar
 using InteractiveUtils
 
 include("types.jl")
+include("initialStates.jl")
 
-const INITIAL_STATE_CHOICES = ["blinker", "triple_blinker", "alternating", "single", "single_bottom", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random"]
+const INITIAL_STATE_CHOICES = ["blinker", "blinker_wide", "triple_blinker", "alternating", "alternating_reversed", "single", "single_wide", "single_bottom", "single_top", "single_bottom_half", "single_top_half", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random", "random_product"]
 const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
-const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe"]
-const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"]
+const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe", "autocorrelation"]
+const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"] #TODO tebd
 
 s = ArgParseSettings(
     prog="main.jl",
     description="A classical simulation of the quantum game of life",
     autofix_names=true,
-    error_on_conflict=false
+    error_on_conflict=false,
+    exit_after_help=false
 )
-add_arg_group!(s, "Rules")
+add_arg_group!(s, "Setup")
 @add_arg_table! s begin
     "--num-cells"
     arg_type = Int
     default = 9
-    help = "The number of cells to use in the simulation. Computation running time scales exponentially with NUM_CELLS. Anything higher than 11 takes a lot of time and memory to compute."
+    help = "The number of cells to use in the simulation. Depending on the algorithm used, the running time can scale exponentially(exact) or linearly(tdvp) with the number of cells."
 
+    "--initial-states"
+    arg_type = String
+    nargs = '*'
+    default = String["blinker"]
+    range_tester = x -> x in INITIAL_STATE_CHOICES
+    help = "Initial State. If more than one is given, an equal superposition of the states is used. Choices are: " * string(INITIAL_STATE_CHOICES)
+
+    "--superposition"
+    action = :store_true
+    help = "Create a superposition of all states given in --initial-states instead of calculating a time evolution for each one seperately"
+end
+
+add_arg_group!(s, "Rule")
+@add_arg_table! s begin
     "--distance"
     arg_type = Int
     default = 1
-    help = "The distance each cell looks for alive or dead neighbours"
+    help = "The interaction distance to the left and right of a cell. This controls the range of local operators in the Hamiltonian. For only nearest neighbor interactions, use 1."
+
+    "--rule"
+    arg_type = Int
+    default = 150
 
     "--activation-interval"
     arg_type = Int
     nargs = 2
-    default = Int[1, 1]
+    # default = Int[1, 1]
     metavar = ["LowerBound", "UpperBound"]
     help = "Range of alive neighbours required for a flip, upper bound is included"
+end
+
+add_arg_group!(s, "Algorithm")
+@add_arg_table! s begin
+    "--algorithm"
+    arg_type = Algorithm
+    default = Exact()
+    help = "The algorithm used for the time evolution. 'exact' is fast and most accurate for a small numbers of cells. Choices are: " * string(ALGORITHM_CHOICES)
 
     "--num-steps"
     arg_type = Int
@@ -41,24 +69,6 @@ add_arg_group!(s, "Rules")
     "--periodic-boundaries"
     action = :store_true
     help = "Use periodic instead of open boundary conditions"
-end
-
-add_arg_group!(s, "Initial State")
-@add_arg_table! s begin
-    "--initial-state"
-    arg_type = String
-    nargs = '+'
-    default = String["blinker"]
-    range_tester = x -> x in INITIAL_STATE_CHOICES
-    help = "Initial State. If more than one is given, an equal superposition of the states is used. Choices are: " * string(INITIAL_STATE_CHOICES)
-end
-
-add_arg_group!(s, "Algorithm")
-@add_arg_table! s begin
-    "--algorithm"
-    arg_type = Algorithm
-    default = Exact()
-    help = "The algorithm used for the time evolution. 'exact' is fast and most accurate for a small numbers of cells. Choices are: " * string(ALGORITHM_CHOICES)
 
     "--step-size"
     arg_type = Float64
@@ -72,13 +82,19 @@ add_arg_group!(s, "Algorithm")
 
     "--max-bond-dim"
     arg_type = Int
-    default = 32
+    default = 16
     help = "The maximum that a bond of the MPS is allowed to grow to during simulation. Is ignored if the chosen algorithm is not 'tdvp'."
 
     "--svd-epsilon"
     arg_type = Float64
     default = 1e-10
     help = "A measure of accuracy for the truncation step after splitting a mps tensor. This parameter controls how quickly the bond dimension of the mps grows during the simulation. Lower means more accurate, but slower."
+
+    "--operator-set"
+    arg_type = Int
+    default = 1
+    range_tester = x -> x in 1:4
+    help = "Set of operators used to build up the hamiltonian in the non-hermitian case."
 end
 
 add_arg_group!(s, "Plot")
@@ -146,6 +162,9 @@ function ArgParse.parse_item(::Type{PlotType}, x::AbstractString)
     if x in ["cbe", "center_bipartite_entropy", "center-bipartite-entropy"]
         return CenterBipartiteEntropy()
     end
+    if x in ["autocorrelation"]
+        return Autocorrelation()
+    end
     throw(ArgumentError("Not a valid plot type"))
 end
 
@@ -160,10 +179,16 @@ function ArgParse.parse_item(::Type{Algorithm}, x::AbstractString)
     if x == "tdvp2"
         return TDVP2()
     end
-    if x == "serpinsky"
+    if x == "sierpinski" || x == "sierpiński"
         return Sierpinski()
+    end
+    if x == "tebd"
+        return TEBD()
     end
     throw(ArgumentError("Not a valid Algorithm"))
 end
 
-get_args() = Args(parse_args(s; as_symbols=true))
+function get_args()
+    args = parse_args(s; as_symbols=true)
+    return isnothing(args) ? Nothing : Args(args)
+end
