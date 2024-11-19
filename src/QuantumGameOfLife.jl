@@ -1,6 +1,7 @@
 module QuantumGameOfLife
 
 using ITensors
+using ITensorMPS
 using InteractiveUtils
 using ProgressMeter
 
