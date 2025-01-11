@@ -2,8 +2,8 @@
 
 ### A classical simulation of the Quantum Game of Life.
 
-Simulate and create beautiful plots of quantum cellular automata, inspired by their classical counterpart.
-The translation of classical rules into a quantum framework follows the method presented in [[1]](#1).
+Simulate and create beautiful plots of quantum cellular automata, inspired by classical elementary cellular automata.
+Given some rule from the Wolfram Code, the translation into a quantum framework follows the method presented in [[1]](#1).
 
 
 
