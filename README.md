@@ -17,7 +17,7 @@ $ cd QuantumGameOfLife.jl/
 $ julia instantiate.jl
 ```
 
-The script only takes significant time when running for the first time, so it is also called from the cli script to make sure everything is set up correctly every time.
+The instantiation script is also called from the cli script to make sure everything is set up correctly every time.
 
 ## Usage
 List all available parameters with
