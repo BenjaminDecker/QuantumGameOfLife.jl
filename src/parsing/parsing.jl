@@ -82,7 +82,7 @@ add_arg_group!(s, "Algorithm")
 
     "--max-bond-dim"
     arg_type = Int
-    default = 16
+    default = 32
     help = "The maximum that a bond of the MPS is allowed to grow to during simulation. Is ignored if the chosen algorithm is not 'tdvp'."
 
     "--svd-epsilon"

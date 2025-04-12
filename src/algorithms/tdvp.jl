@@ -1,25 +1,13 @@
 using ITensors
-# using ExponentialUtilities
+using KrylovKit
 
 const TENSOR_1::ITensor = ITensor(1)
 
-evolve(A::ITensor, H_eff::ITensor, T::ComplexF64)::ITensor =
-    normalize(noprime(A * exp(H_eff * T)))
-
-# function evolve(A::ITensor, H_eff::ITensor, T::ComplexF64)::ITensor
-#     A_inds = inds(A)
-#     C1 = combiner(A_inds)
-#     C1_ind = combinedind(C1)
-#     C2 = combiner(A_inds')
-#     C2_ind = combinedind(C2)
-
-#     H_eff_matrix = Array(C1 * H_eff * C2, C1_ind, C2_ind)
-#     A_vector = Array(C1 * A, C1_ind)
-#     # new_A = expv(T, H_eff_matrix, A_vector; tol=1e-10, m=max(30, Int(size(H_eff_matrix, 1) / 2)))
-#     new_A = expv(T, H_eff_matrix, A_vector)
-#     return normalize(dag(C1) * ITensor(new_A, C1_ind))
-#     # normalize(noprime(A * exp(H_eff * T)))
-# end
+function evolve(A::ITensor, H_eff::ITensor, T::ComplexF64)::ITensor
+    new_A, info = exponentiate(H_eff, T, A, eager=true)
+    @assert info.converged == 1
+    normalize(new_A)
+end
 
 push_layer!(layers::Vector{ITensor}, site::ITensor, H_site::ITensor) =
     push!(layers, layers[end] * site * H_site * dag(prime(site)))
