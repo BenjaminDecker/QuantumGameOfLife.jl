@@ -2,18 +2,22 @@ using Combinatorics
 
 function bipartite_entropy(psi::MPS, seperator_index::Int)::Float64
     orthogonalize!(psi, seperator_index)
-    _, S, _ = svd(
-        psi[seperator_index],
-        (linkind(psi, seperator_index - 1), siteind(psi, seperator_index))
-    )
-    SvN = 0.0
-    for n = 1:dim(S, 1)
-        p = S[n, n]^2
-        if p > 0.0
-            SvN -= p * log(p)
+    try
+        _, S, _ = svd(
+            psi[seperator_index],
+            (linkind(psi, seperator_index - 1), siteind(psi, seperator_index))
+        )
+        SvN = 0.0
+        for n = 1:dim(S, 1)
+            p = S[n, n]^2
+            if p > 0.0
+                SvN -= p * log(p)
+            end
         end
+        return real(SvN)
+    catch _
+        return NaN
     end
-    real(SvN)
 end
 
 function center_bipartite_entropy(psi::MPS)::Float64

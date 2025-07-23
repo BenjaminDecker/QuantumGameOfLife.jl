@@ -20,8 +20,16 @@ function measure(::SingleSiteEntropy, state::MPS)::Vector{Float64}
         bra = conj(prime(ket, tags="Site"))
         ket_bra = ket * bra
         density_matrix = Matrix(ket_bra, inds(ket, tags="Site"), inds(bra, tags="Site"))
-        result = real(-tr(density_matrix * log(density_matrix) / log(2)))
-        sse[i] = isnan(result) ? zero(result) : result
+        try
+            if any(isnan.(density_matrix))
+                sse[i] = NaN
+            else
+                result = real(-tr(density_matrix * log(density_matrix) / log(2)))
+                sse[i] = isnan(result) ? zero(result) : result
+            end
+        catch _
+            sse[i] = NaN
+        end
     end
     return sse
 end
