@@ -105,7 +105,7 @@ function build_MPO_hamiltonian(
     os = OpSum()
     for idx in 1:args.num_cells
         for local_opsum_tuple in local_opsum_tuple_list(idx, args)
-            os += local_opsum_tuple
+            os .+= local_opsum_tuple
         end
     end
     mpo = MPO(os, site_inds)
