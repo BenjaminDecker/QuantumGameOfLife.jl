@@ -25,3 +25,4 @@ Manifest.toml
 
 # Custom configuration
 .DS_Store
+.vscode
