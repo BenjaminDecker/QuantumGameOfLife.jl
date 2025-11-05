@@ -32,7 +32,7 @@ add_arg_group!(s, "Setup")
 
     "--superposition"
     action = :store_true
-    help = "Create a superposition of all states given in --initial-states instead of calculating a time evolution for each one seperately"
+    help = "Create a superposition of all states given in --initial-states instead of calculating a time evolution for each one separately"
 end
 
 add_arg_group!(s, "Rule")
@@ -51,7 +51,7 @@ add_arg_group!(s, "Rule")
     nargs = 2
     # default = Int[1, 1]
     metavar = ["LowerBound", "UpperBound"]
-    help = "Range of alive neighbours required for a flip, upper bound is included"
+    help = "Range of alive neighbors required for a flip, upper bound is included"
 end
 
 add_arg_group!(s, "Algorithm")
