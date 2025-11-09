@@ -5,7 +5,7 @@ function evolve(::TDVP1, psi_0_vec::Vector{MPS}, H::MPO, args)::Vector{Vector{MP
         tdvp1(
             H,
             psi_0;
-            step_size=-im * args.step_size * (pi / 2),
+            step_size=args.step_size * (pi / 2),
             num_steps=args.num_steps,
             sweeps_per_time_step=args.sweeps_per_time_step,
             max_bond_dim=args.max_bond_dim
@@ -20,7 +20,7 @@ function evolve(::TDVP2, psi_0_vec::Vector{MPS}, H::MPO, args)::Vector{Vector{MP
         tdvp2(
             H,
             psi_0;
-            step_size=-im * args.step_size * (pi / 2),
+            step_size=args.step_size * (pi / 2),
             num_steps=args.num_steps,
             sweeps_per_time_step=args.sweeps_per_time_step,
             max_bond_dim=args.max_bond_dim,

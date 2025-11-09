@@ -14,6 +14,3 @@ PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SplitApplyCombine = "03a91e81-4c3e-53e1-a0a4-9c0c8f19dd66"
 TensorTimeSteps = "1f4dac17-e489-46a5-8247-1c82af6382b6"
-
-[compat]
-TensorTimeSteps = "0.1.2"
