@@ -1,11 +1,11 @@
 using Combinatorics
 
-function bipartite_entropy(psi::MPS, seperator_index::Int)::Float64
-    orthogonalize!(psi, seperator_index)
+function bipartite_entropy(psi::MPS, separator_index::Int)::Float64
+    orthogonalize!(psi, separator_index)
     try
         _, S, _ = svd(
-            psi[seperator_index],
-            (linkind(psi, seperator_index - 1), siteind(psi, seperator_index))
+            psi[separator_index],
+            (linkind(psi, separator_index - 1), siteind(psi, separator_index))
         )
         SvN = 0.0
         for n = 1:dim(S, 1)
