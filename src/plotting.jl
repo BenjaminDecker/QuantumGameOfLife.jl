@@ -47,6 +47,7 @@ function plot(
                 _ = lines!(
                     ax,
                     data,
+                    linewidth=2
                 )
             else
                 ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
