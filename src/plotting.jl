@@ -65,6 +65,8 @@ function plot(
             colormap=:inferno
         )
 
+        axes[end].xlabel = "Time Steps"
+
         linkxaxes!(axes)
         for ax in axes[1:(end-1)]
             hidexdecorations!(ax, ticks=false)
