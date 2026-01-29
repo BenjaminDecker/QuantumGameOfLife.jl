@@ -25,6 +25,7 @@ include("algorithms/sierpinski.jl")
 include("algorithms/tebd.jl")
 include("measuring.jl")
 include("plotting.jl")
+include("fragmentation_analysis/utils.jl")
 include("fragmentation_analysis/fragmentationAnalysis.jl")
 
 export start
