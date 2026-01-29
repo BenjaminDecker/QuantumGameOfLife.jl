@@ -1,5 +1,3 @@
-using Random
-
 function blinker(site_inds::Vector{ITensors.Index{Int64}}, width::Int=1)::MPS
     mid = floor(length(site_inds) / 2) + 1
     plist = [i == (mid - width) || i == (mid + width) ? "1" : "0" for i in 1:length(site_inds)]

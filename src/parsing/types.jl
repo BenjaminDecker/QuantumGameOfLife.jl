@@ -22,7 +22,7 @@ ordering_index(::Rounded) = 4
 struct BondDimensions <: HeatmapDiscrete end
 filename_identifier(::BondDimensions) = "bond_dims"
 name(::BondDimensions) = "Bond Dimensions"
-label(::BondDimensions) = "Bond\nDimensions"
+label(::BondDimensions) = "Bond\nDimension"
 ordering_index(::BondDimensions) = 5
 struct Classical <: HeatmapDiscrete end
 filename_identifier(::Classical) = "classical"
@@ -80,7 +80,9 @@ struct Args
     plots::Set{PlotType}
     plotting_file_path::String
     file_formats::Set{String}
-    dpi::Float64
+    width::Union{Nothing,Int}
+    page_entropy::Bool
+    px_per_unit::Float64
     plot_eigval_vs_cbe::Bool
     plot_fragment_sizes::Bool
     show::Bool
@@ -116,7 +118,9 @@ function Args(args::Dict{Symbol,Any})::Args
         Set{PlotType}(args[:plot]),
         args[:plotting_file_path],
         Set{String}(args[:file_formats]),
-        args[:dpi],
+        args[:width],
+        args[:page_entropy],
+        args[:px_per_unit],
         args[:plot_eigval_vs_cbe],
         args[:plot_fragment_sizes],
         args[:show]

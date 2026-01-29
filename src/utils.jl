@@ -1,5 +1,3 @@
-using Combinatorics
-
 function bipartite_entropy(psi::MPS, separator_index::Int)::Float64
     orthogonalize!(psi, separator_index)
     try

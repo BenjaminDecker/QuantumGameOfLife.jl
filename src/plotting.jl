@@ -1,7 +1,3 @@
-using PyPlot
-using SplitApplyCombine
-using DefaultApplication
-
 struct LabeledPlot
     label::String
     data::Vector{Vector{Float64}}
@@ -11,131 +7,119 @@ function plot(
     measurements_vector::Vector{Dict{PlotType,Vector{Vector{Float64}}}},
     args::Args
 )
-    cmap = "inferno"
-    magic_number = 1.2
-    colorbar_width = 0.15 # As a fraction of the subplot height
     S_max = (args.num_cells * log(2) - 1) / 2
-
-
 
     for (j, measurements) in enumerate(measurements_vector)
 
         measurements_sorted = sort(collect(measurements), by=x -> x[1])
-        num_plots = length(measurements_sorted)
 
-        figsize = (magic_number / args.num_cells) .*
-                  [args.num_steps, args.num_cells * num_plots]
-        gs_kw = Dict(
-            "width_ratios" => [1 * args.num_steps / args.num_cells, colorbar_width],
-            "wspace" => 0.5 * magic_number / figsize[1],
-            "hspace" => 0.3
-        )
+        width = @something args.width 600
+        f = Figure(size=(width, width))
 
-        mosaic = [
-            [
-                "plot_$(i)",
-                "colorbar_$(isa(measurements_sorted[i][1], HeatmapContinuous) ? "continuous" : i)"
-            ]
-            for i in eachindex(measurements_sorted)
-        ]
-        fig, axs = plt.subplot_mosaic(mosaic, gridspec_kw=gs_kw)
-        for i in 2:num_plots
-            axs["plot_$(i)"].sharex(axs["plot_1"])
-        end
-        for i in 1:(num_plots-1)
-            axs["plot_$(i)"].tick_params(labelbottom=false)
-        end
+        discrete_cmap = cgrad(:inferno, 2; categorical=true)
 
-        colorbar_created::Bool = false
+        axis_ids_of_HeatmapContinuous = []
+        axes::Vector{Makie.Axis} = []
 
         for (i, (type, data)) in enumerate(measurements_sorted)
-            ax = axs["plot_$(i)"]
-            ax.figure.set_size_inches(figsize...)
-            ax.set_ylabel(label(type))
-            if isa(type, HeatmapContinuous)
-                img = ax.pcolormesh(
-                    real(combinedims(data)),
-                    cmap=cmap,
-                    vmin=0.0,
-                    vmax=1.0
+            # Label(f[i, 0], label(type), rotation=pi / 2)
+            if isa(type, HeatmapDiscrete)
+                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
+                push!(axes, ax)
+                _ = heatmap!(
+                    ax,
+                    transpose(reduce(hcat, data)),
+                    colormap=discrete_cmap,
                 )
-                if !colorbar_created
-                    fig.colorbar(
-                        img,
-                        cax=axs["colorbar_continuous"]
-                    )
-                    colorbar_created = true
-                end
-            elseif isa(type, HeatmapDiscrete)
-                vmin = trunc(Int, minimum(minimum.(data)))
-                vmax = trunc(Int, maximum(maximum.(data)))
-                img = ax.pcolormesh(
-                    real(combinedims(data)),
-                    cmap=get_cmap(cmap, vmax - vmin + 1),
-                    vmin=vmin,
-                    vmax=vmax
+                Colorbar(
+                    f[i, 2],
+                    ticks=([0.25, 0.75], ["0", "1"]),
+                    colormap=discrete_cmap,
                 )
-                cbar = fig.colorbar(img, cax=axs["colorbar_$(i)"])
-                cbar.ax.locator_params(nbins=min(vmax + 1, 6))
-                img.set_clim(-0.5 + vmin, (vmax + 0.5))
             elseif isa(type, LinePlot)
-                axs["colorbar_$(i)"].axis("off")
-                ax.plot(data)
-                if (isa(type, CenterBipartiteEntropy))
-                    ax.hlines(
-                        S_max,
-                        0,
-                        length(data) - 1,
-                        colors="red",
-                        linestyles="--",
-                        label="page entropy"
-                    )
-                    ax.legend(loc="lower right")
+                ax = Axis(f[i, 1], limits=((0.5, length(data) + 0.5), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
+                if args.page_entropy
+                    hlines!(S_max; color=:red, label="page entropy")
+                    axislegend(ax, position=:rb)
                 end
+                push!(axes, ax)
+                data = flatten(data)
+                _ = lines!(
+                    ax,
+                    data,
+                )
+            else
+                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
+                push!(axes, ax)
+                _ = heatmap!(
+                    ax,
+                    transpose(reduce(hcat, data)),
+                    colormap=:inferno,
+                )
+                push!(axis_ids_of_HeatmapContinuous, i)
             end
         end
+        Colorbar(
+            f[minimum(axis_ids_of_HeatmapContinuous):maximum(axis_ids_of_HeatmapContinuous), length(axis_ids_of_HeatmapContinuous)],
+            colormap=:inferno
+        )
 
-        axs["plot_$(num_plots)"].set_xlabel("Time Steps")
-        write_and_show(args, "$j")
-        PyPlot.close()
+        linkxaxes!(axes)
+        for ax in axes[1:(end-1)]
+            hidexdecorations!(ax, ticks=false)
+        end
+
+        axis_height = 80
+        for r in 1:nrows(f.layout)
+            rowsize!(f.layout, r, Fixed(axis_height))
+        end
+
+        aspect_ratio = length(measurements_sorted[1][2]) / length(measurements_sorted[1][2][1])
+        if isnothing(args.width)
+            colsize!(f.layout, 1, Fixed(aspect_ratio * axis_height))
+        else
+            f.layout.width = args.width
+        end
+
+        resize_to_layout!(f)
+        save_and_show(f, args, "$j")
     end
+
 end
+
 
 function plot_eigval_vs_cbe(
     eigval::Vector{Float64},
     cbe::Vector{Float64},
     args::Args
 )
-    scatter(eigval, cbe)
-    xlabel("Energy Density E/L")
-    ylabel("Center Bipartite Entropy")
+
+    f = Figure()
     S_max = (args.num_cells * log(2) - 1) / 2
-    PyPlot.axhline(
-        S_max,
-        color="red",
-        linestyle="--",
-        label="Page Entropy \$\\frac{L\\cdot log(2)-1}{2}\$"
-    )
-    PyPlot.legend(loc="upper left", framealpha=1.0)
-    write_and_show(args, "eigval_vs_cbe")
-    PyPlot.close()
+    ax = Axis(f[1, 1], xlabel="Energy Density E/L", ylabel="Center Bipartite Entropy")
+    scatter!(ax, eigval, cbe)
+    hlines!(S_max, linestyle=:dash, color=:red, label=L"Page Entropy $\frac{L\cdot log(2)-1}{2}$")
+    axislegend(ax, position=:lt)
+    save_and_show(f, args, "eigval_vs_cbe")
 end
 
 function plot_fragment_sizes(fragment_sizes::Vector{Int}, args::Args)
-    bar(eachindex(fragment_sizes), fragment_sizes)
-    xlabel("Fragment")
-    ylabel("Fragment Size")
-    PyPlot.yticks(
-        Vector(1:ceil(Int, fragment_sizes[end] / 20):fragment_sizes[end])
-    )
-    PyPlot.xticks(
-        Vector(1:ceil(Int, length(fragment_sizes) / 10):length(fragment_sizes))
-    )
-    write_and_show(args, "fragment_sizes")
-    PyPlot.close()
+    f = Figure()
+    ax = Axis(f[1, 1], xlabel="Fragment", ylabel="Fragment Size", xticks=eachindex(fragment_sizes))
+    barplot!(ax, eachindex(fragment_sizes), fragment_sizes)
+    # hidedecorations!(
+    #     ax,
+    #     label=false,
+    #     ticklabels=false,
+    #     ticks=false,
+    #     # grid=false,
+    #     minorgrid=false,
+    #     minorticks=false,
+    # )
+    save_and_show(f, args, "fragment_sizes")
 end
 
-function write_and_show(args::Args, id::String="")
+function save_and_show(f, args::Args, id::String="")
     rule_filename =
         "$(args.num_cells)" *
         "-$(args.distance)" *
@@ -155,7 +139,7 @@ function write_and_show(args::Args, id::String="")
 
     for suffix in args.file_formats
         file_path = "$(path).$(suffix)"
-        savefig(file_path, bbox_inches="tight"; dpi=args.dpi)
+        save(file_path, f; px_per_unit=args.px_per_unit)
         if args.show
             DefaultApplication.open(file_path)
         end

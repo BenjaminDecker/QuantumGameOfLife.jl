@@ -1,5 +1,3 @@
-using TensorTimeSteps
-
 function evolve(::TDVP1, psi_0_vec::Vector{MPS}, H::MPO, args)::Vector{Vector{MPS}}
     return [
         tdvp1(

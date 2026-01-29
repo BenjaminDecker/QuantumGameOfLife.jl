@@ -1,11 +1,5 @@
-import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
-using InteractiveUtils
-
-include("types.jl")
-include("initialStates.jl")
-
 const INITIAL_STATE_CHOICES = ["blinker", "blinker_wide", "triple_blinker", "alternating", "alternating_reversed", "single", "single_wide", "single_bottom", "single_top", "single_bottom_half", "single_top_half", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random", "random_product"]
-const FILE_FORMAT_CHOICES = ["eps", "jpeg", "jpg", "pdf", "pgf", "png", "ps", "raw", "rgba", "svg", "svgz", "tif", "tiff"]
+const FILE_FORMAT_CHOICES = ["pdf", "png", "svg", "eps"]
 const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe", "autocorrelation"]
 const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"] #TODO tebd
 
@@ -121,10 +115,18 @@ add_arg_group!(s, "Plot")
     range_tester = x -> x in FILE_FORMAT_CHOICES
     help = "File formats for plots. Choices are: " * string(FILE_FORMAT_CHOICES)
 
-    "--dpi"
+    "--width"
+    arg_type = Int
+    help = "Plot width. If omitted, plot width will grow with num-steps such that heatmap datapoints look like squares. If you are unsure, a good default value is 600."
+
+    "--page-entropy"
+    action = :store_true
+    help = "Show the page entropy value in cbe plots"
+
+    "--px-per-unit"
     arg_type = Float64
-    default = 200.0
-    help = "The dpi used for the plot. Only relevant for raster image formats."
+    default = 2.0
+    help = "The size of one unit length of the plot in px"
 end
 
 add_arg_group!(s, "Fragmentation Analysis")
