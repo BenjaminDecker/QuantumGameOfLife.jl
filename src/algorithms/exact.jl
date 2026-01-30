@@ -12,7 +12,7 @@ function evolve(::Exact, psi_0_vec::Vector{MPS}, H::MPO, args::Args)::Vector{Vec
         sizehint!(results, args.num_steps)
         psi_tensor = contract(psi_0)
 
-        @showprogress "Calculating Time Evolution" for _ in 2:args.num_steps
+        @showprogress "Calculating Time Evolution" for _ in 1:args.num_steps
             psi_tensor = noprime(U_tensor * psi_tensor)
             normalize!(psi_tensor)
             push!(results, MPS(psi_tensor, siteinds(psi_0)))

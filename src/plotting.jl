@@ -22,12 +22,14 @@ function plot(
         axes::Vector{Makie.Axis} = []
 
         for (i, (type, data)) in enumerate(measurements_sorted)
-            # Label(f[i, 0], label(type), rotation=pi / 2)
+
             if isa(type, HeatmapDiscrete)
                 ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
                 push!(axes, ax)
                 _ = heatmap!(
                     ax,
+                    0:args.num_steps,
+                    0:args.num_cells,
                     transpose(reduce(hcat, data)),
                     colormap=discrete_cmap,
                 )
@@ -37,7 +39,7 @@ function plot(
                     colormap=discrete_cmap,
                 )
             elseif isa(type, LinePlot)
-                ax = Axis(f[i, 1], limits=((0.5, length(data) + 0.5), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
+                ax = Axis(f[i, 1], limits=((-0.5, length(data) - 0.5), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
                 if args.page_entropy
                     hlines!(S_max; color=:red, label="page entropy")
                     axislegend(ax, position=:rb)
@@ -46,6 +48,7 @@ function plot(
                 data = flatten(data)
                 _ = lines!(
                     ax,
+                    0:args.num_steps,
                     data,
                     linewidth=2
                 )
@@ -54,6 +57,8 @@ function plot(
                 push!(axes, ax)
                 _ = heatmap!(
                     ax,
+                    0:args.num_steps,
+                    0:args.num_cells,
                     transpose(reduce(hcat, data)),
                     colormap=:inferno,
                 )

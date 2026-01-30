@@ -40,8 +40,8 @@ function measure(
     args::Args
 )::Vector{Vector{Float64}}
     states = Vector{Vector{Bool}}([measure(Rounded(), states[1])])
-    for step in 2:args.num_steps
-        last_state = states[step-1]
+    for step in 1:args.num_steps
+        last_state = states[step]
         next_state = copy(last_state)
         for index in eachindex(next_state)
             conf_id = configuration_id(last_state, index, args)
