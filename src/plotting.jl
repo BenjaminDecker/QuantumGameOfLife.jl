@@ -24,12 +24,12 @@ function plot(
         for (i, (type, data)) in enumerate(measurements_sorted)
 
             if isa(type, HeatmapDiscrete)
-                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
+                ax = Axis(f[i, 1], ylabel=label(type), yticks=[0; length(data[1]) - 1])
                 push!(axes, ax)
                 _ = heatmap!(
                     ax,
-                    0:args.num_steps,
-                    0:args.num_cells,
+                    0:(length(data)-1),
+                    0:(length(data[1])-1),
                     transpose(reduce(hcat, data)),
                     colormap=discrete_cmap,
                 )
@@ -53,12 +53,12 @@ function plot(
                     linewidth=2
                 )
             else
-                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
+                ax = Axis(f[i, 1], ylabel=label(type), yticks=[0; length(data[1]) - 1])
                 push!(axes, ax)
                 _ = heatmap!(
                     ax,
-                    0:args.num_steps,
-                    0:args.num_cells,
+                    0:(length(data)-1),
+                    0:(length(data[1])-1),
                     transpose(reduce(hcat, data)),
                     colormap=:inferno,
                 )
