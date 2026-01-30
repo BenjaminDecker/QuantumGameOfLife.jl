@@ -68,7 +68,7 @@ function plot(
             end
         end
         Colorbar(
-            f[minimum(axis_ids_of_HeatmapContinuous):maximum(axis_ids_of_HeatmapContinuous), length(axis_ids_of_HeatmapContinuous)],
+            f[minimum(axis_ids_of_HeatmapContinuous):maximum(axis_ids_of_HeatmapContinuous), 2],
             colormap=:inferno
         )
 
