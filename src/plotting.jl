@@ -16,7 +16,6 @@ function plot(
         width = @something args.width 600
         f = Figure(size=(width, width))
 
-        discrete_cmap = cgrad(:inferno, 2; categorical=true)
 
         axis_ids_of_HeatmapContinuous = []
         axes::Vector{Makie.Axis} = []
@@ -24,19 +23,22 @@ function plot(
         for (i, (type, data)) in enumerate(measurements_sorted)
 
             if isa(type, HeatmapDiscrete)
-                ax = Axis(f[i, 1], ylabel=label(type), yticks=[0; length(data[1]) - 1])
+                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
+                num_categories = max(2, Int(maximum(maximum.(data))) + 1)
+                cmap = cgrad(:inferno, num_categories; categorical=true)
                 push!(axes, ax)
-                _ = heatmap!(
+                heatmap!(
                     ax,
                     0:(length(data)-1),
-                    0:(length(data[1])-1),
+                    1:(length(data[1])),
                     transpose(reduce(hcat, data)),
-                    colormap=discrete_cmap,
+                    colormap=cmap,
                 )
+                pos = 1 / (2 * num_categories)
                 Colorbar(
                     f[i, 2],
-                    ticks=([0.25, 0.75], ["0", "1"]),
-                    colormap=discrete_cmap,
+                    colormap=cmap,
+                    ticks=([pos, 1 - pos], ["0", string(num_categories - 1)]),
                 )
             elseif isa(type, LinePlot)
                 ax = Axis(f[i, 1], limits=((-0.5, length(data) - 0.5), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
@@ -53,12 +55,12 @@ function plot(
                     linewidth=2
                 )
             else
-                ax = Axis(f[i, 1], ylabel=label(type), yticks=[0; length(data[1]) - 1])
+                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
                 push!(axes, ax)
                 _ = heatmap!(
                     ax,
                     0:(length(data)-1),
-                    0:(length(data[1])-1),
+                    1:(length(data[1])),
                     transpose(reduce(hcat, data)),
                     colormap=:inferno,
                 )
