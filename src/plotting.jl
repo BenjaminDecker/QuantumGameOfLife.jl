@@ -67,10 +67,12 @@ function plot(
                 push!(axis_ids_of_HeatmapContinuous, i)
             end
         end
-        Colorbar(
-            f[minimum(axis_ids_of_HeatmapContinuous):maximum(axis_ids_of_HeatmapContinuous), 2],
-            colormap=:inferno
-        )
+        if !isempty(axis_ids_of_HeatmapContinuous)
+            Colorbar(
+                f[minimum(axis_ids_of_HeatmapContinuous):maximum(axis_ids_of_HeatmapContinuous), 2],
+                colormap=:inferno
+            )
+        end
 
         axes[end].xlabel = "Time Steps"
 
