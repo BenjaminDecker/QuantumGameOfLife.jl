@@ -74,7 +74,13 @@ function plot(
 
         linkxaxes!(axes)
         for ax in axes[1:(end-1)]
-            hidexdecorations!(ax, ticks=false)
+            hidexdecorations!(
+                ax,
+                ticks=false,
+                grid=false,
+                minorgrid=false,
+                minorticks=false,
+            )
         end
 
         axis_height = 80
