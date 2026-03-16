@@ -21,7 +21,7 @@ jobs:
           version: ${{ matrix.julia-version }}
 
       - name: Checkout the repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
 
       - name: Build Julia package
         uses: julia-actions/julia-buildpkg@v1
