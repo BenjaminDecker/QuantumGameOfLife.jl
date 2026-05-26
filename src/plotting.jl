@@ -33,6 +33,7 @@ function plot(
                     1:(length(data[1])),
                     transpose(reduce(hcat, data)),
                     colormap=cmap,
+                    colorrange=(0, num_categories - 1)
                 )
                 pos = 1 / (2 * num_categories)
                 Colorbar(
