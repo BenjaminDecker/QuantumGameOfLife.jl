@@ -11,6 +11,7 @@ using TensorTimeSteps
 using Random
 using InteractiveUtils
 using Combinatorics
+using LinearAlgebra
 
 import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
 include("parsing/types.jl")
