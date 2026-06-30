@@ -100,10 +100,36 @@ end
 
 function get_rule(args::Dict{Symbol,Any})::Int
     if isempty(args[:activation_interval])
+        if isempty(args[:rule])
+            return 150
+        end
         return args[:rule]
     end
-    # TODO
-    return 150
+
+    println("Calculating rule for activation interval: ", args[:activation_interval])
+    neighborhood_size = 2 * args[:distance] + 1
+    num_configs = 2^neighborhood_size
+
+    rule_bits = ""
+
+    for i in (num_configs - 1):-1:0
+        state = string(i, base=2, pad=neighborhood_size)
+        bits = [parse(Int, c) for c in state]
+        center_idx = args[:distance] + 1
+        alive_neighbors = sum(bits[1:center_idx-1]) + sum(bits[center_idx+1:end])
+
+        c = bits[center_idx]
+        if alive_neighbors in args[:activation_interval]
+            next_c = 1 - c
+        else
+            next_c = c
+        end
+            
+        rule_bits *= string(next_c)
+    end
+    rule = parse(BigInt, rule_bits, base=2)
+    println("Using rule: ", rule)
+    return rule
 end
 
 function Args(args::Dict{Symbol,Any})::Args
