@@ -34,6 +34,11 @@ filename_identifier(::Classical) = "classical"
 name(::Classical) = "Classical"
 label(::Classical) = "Classical"
 ordering_index(::Classical) = 1
+struct Clustering <: HeatmapDiscrete end
+filename_identifier(::Clustering) = "clust"
+name(::Clustering) = "Clustering"
+label(::Clustering) = "Clustering"
+ordering_index(::Clustering) = 8
 
 abstract type LinePlot <: PlotType end
 struct CenterBipartiteEntropy <: LinePlot end

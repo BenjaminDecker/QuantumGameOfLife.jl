@@ -52,6 +52,12 @@ function measure(::Autocorrelation, states::Vector{MPS}, args::Args)::Vector{Vec
     return [[abs(inner(states[1], state))] for state in states]
 end
 
+function measure(::Clustering, states::Vector{MPS}, args::Args)::Vector{Vector{Float64}}
+    clustering = [cluster(round.(measure(ExpectationValue(), s))) for s in states]
+    global_max = maximum(get_effective_max.(clustering))
+    return [v[1:global_max] for v in clustering]
+end 
+
 function measure(::AvgConcurrence, states::Vector{MPS}, args::Args)::Vector{Vector{Float64}}
     results = Vector{Vector{Float64}}(undef, args.num_steps)
     
@@ -150,6 +156,28 @@ function get_value(state::Vector{Bool}, index::Int, periodic::Bool)::Int
         index -= num_cells
     end
     return Int(state[index])
+end
+
+function cluster(state::Vector{Float64})::Vector{Float64}
+    counts = zeros(Float64, length(state))
+    current_size = 0
+    for bit in state
+        if bit == 1
+            current_size += 1
+        elseif current_size > 0
+            counts[current_size] += 1
+            current_size = 0
+        end
+    end
+    if current_size > 0
+        counts[current_size] += 1
+    end
+    return counts
+end
+
+function get_effective_max(vec::Vector{Float64})
+    last_idx = findlast(x -> x > 0, vec)
+    return last_idx === nothing ? 0 : last_idx
 end
 
 const Y_Y = [ 0.0  0.0  0.0 -1.0; 0.0  0.0  1.0  0.0; 0.0  1.0  0.0  0.0; -1.0  0.0  0.0  0.0 ]
