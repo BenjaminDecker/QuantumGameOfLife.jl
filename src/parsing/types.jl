@@ -11,6 +11,11 @@ filename_identifier(::SingleSiteEntropy) = "sse"
 name(::SingleSiteEntropy) = "Single Site Entropy"
 label(::SingleSiteEntropy) = "Single Site\nEntropy"
 ordering_index(::SingleSiteEntropy) = 3
+struct AvgConcurrence <: HeatmapContinuous end
+filename_identifier(::AvgConcurrence) = "avg_c"
+name(::AvgConcurrence) = "Average Concurrence"
+label(::AvgConcurrence) = "Average\nConcurrence"
+ordering_index(::AvgConcurrence) = 9
 
 
 abstract type HeatmapDiscrete <: PlotType end
