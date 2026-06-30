@@ -1,6 +1,6 @@
 const INITIAL_STATE_CHOICES = ["blinker", "blinker_wide", "triple_blinker", "alternating", "alternating_reversed", "single", "single_wide", "single_bottom", "single_top", "single_bottom_half", "single_top_half", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random", "random_product"]
 const FILE_FORMAT_CHOICES = ["pdf", "png", "svg", "eps"]
-const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe", "autocorrelation"]
+const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe", "autocorrelation", "clustering",  "avg_concurrence"]
 const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"] #TODO tebd
 
 s = ArgParseSettings(
@@ -166,6 +166,12 @@ function ArgParse.parse_item(::Type{PlotType}, x::AbstractString)
     end
     if x in ["autocorrelation"]
         return Autocorrelation()
+    end
+    if x in ["clustering"]
+        return Clustering()
+    end
+    if x in ["avg_concurrence"]
+        return AvgConcurrence()
     end
     throw(ArgumentError("Not a valid plot type"))
 end

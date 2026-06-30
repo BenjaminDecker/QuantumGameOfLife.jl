@@ -11,6 +11,11 @@ filename_identifier(::SingleSiteEntropy) = "sse"
 name(::SingleSiteEntropy) = "Single Site Entropy"
 label(::SingleSiteEntropy) = "Single Site\nEntropy"
 ordering_index(::SingleSiteEntropy) = 3
+struct AvgConcurrence <: HeatmapContinuous end
+filename_identifier(::AvgConcurrence) = "avg_c"
+name(::AvgConcurrence) = "Average Concurrence"
+label(::AvgConcurrence) = "Average\nConcurrence"
+ordering_index(::AvgConcurrence) = 9
 
 
 abstract type HeatmapDiscrete <: PlotType end
@@ -29,6 +34,11 @@ filename_identifier(::Classical) = "classical"
 name(::Classical) = "Classical"
 label(::Classical) = "Classical"
 ordering_index(::Classical) = 1
+struct Clustering <: HeatmapDiscrete end
+filename_identifier(::Clustering) = "clust"
+name(::Clustering) = "Clustering"
+label(::Clustering) = "Clustering"
+ordering_index(::Clustering) = 8
 
 abstract type LinePlot <: PlotType end
 struct CenterBipartiteEntropy <: LinePlot end
