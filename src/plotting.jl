@@ -29,7 +29,7 @@ function plot(
                 push!(axes, ax)
                 heatmap!(
                     ax,
-                    0:(length(data)-1),
+                    (0:(length(data)-1)) .* args.step_size,
                     1:(length(data[1])),
                     transpose(reduce(hcat, data)),
                     colormap=cmap,
@@ -42,7 +42,7 @@ function plot(
                     ticks=([pos, 1 - pos], ["0", string(num_categories - 1)]),
                 )
             elseif isa(type, LinePlot)
-                ax = Axis(f[i, 1], limits=((-0.5, length(data) - 0.5), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
+                ax = Axis(f[i, 1], limits=((-0.5 * args.step_size, args.num_steps * args.step_size + 0.5 * args.step_size), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
                 if args.page_entropy
                     hlines!(S_max; color=:red, label="page entropy")
                     axislegend(ax, position=:rb)
@@ -51,7 +51,7 @@ function plot(
                 data = flatten(data)
                 _ = lines!(
                     ax,
-                    0:args.num_steps,
+                    0:args.step_size:(args.num_steps * args.step_size),
                     data,
                     linewidth=2
                 )
@@ -60,7 +60,7 @@ function plot(
                 push!(axes, ax)
                 _ = heatmap!(
                     ax,
-                    0:(length(data)-1),
+                    (0:(length(data)-1)) .* args.step_size,
                     1:(length(data[1])),
                     transpose(reduce(hcat, data)),
                     colormap=:inferno,
@@ -75,7 +75,7 @@ function plot(
             )
         end
 
-        axes[end].xlabel = "Time Steps"
+        axes[end].xlabel = "Time 2t/π"
 
         linkxaxes!(axes)
         for ax in axes[1:(end-1)]
