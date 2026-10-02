@@ -59,7 +59,7 @@ function fragment_sizes(H::MPO, periodic::Bool)::Vector{Int}
     num_sites = length(site_inds)
     C = combiner(site_inds...)
     ci = combinedind(C)
-    basis_states::Vector{Union{Nothing,Int}} = [nothing for _ in 1:2^num_sites]
+    basis_states::Vector{Union{Nothing,Int}} = [nothing for _ in 1:(2^num_sites)]
     fragments = Dict{Int,Set{BitVector}}()
     fragment_id_counter = 0
     prog = ProgressUnknown(desc="Calculating fragment sizes:", spinner=true)

@@ -14,12 +14,6 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SplitApplyCombine = "03a91e81-4c3e-53e1-a0a4-9c0c8f19dd66"
 TensorTimeSteps = "1f4dac17-e489-46a5-8247-1c82af6382b6"
 
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
-
 [compat]
 ArgParse = "1.2"
 CairoMakie = "0.15"
@@ -30,3 +24,6 @@ ProgressMeter = "1.11"
 SplitApplyCombine = "1.3"
 TensorTimeSteps = "0.1.17"
 julia = "1.10"
+
+[workspace]
+projects = ["test"]

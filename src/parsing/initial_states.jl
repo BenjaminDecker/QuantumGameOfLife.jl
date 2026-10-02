@@ -91,7 +91,7 @@ function single_bottom_blinker_top(site_inds::Vector{ITensors.Index{Int64}})::MP
     MPS(site_inds, plist)
 end
 
-random(site_inds::Vector{ITensors.Index{Int64}})::MPS = randomMPS(site_inds)
+random(site_inds::Vector{ITensors.Index{Int64}})::MPS = random_mps(site_inds)
 
 function random_product(site_inds::Vector{ITensors.Index{Int64}})::MPS
     plist = map(x -> x ? "1" : "0", bitrand(length(site_inds)))
@@ -105,7 +105,7 @@ Maps the name of each supported initial state (as accepted by the `--initial-sta
 command line option) to the function that builds the corresponding `MPS`. Each function
 takes a `Vector{ITensors.Index{Int64}}` of site indices as its only argument.
 """
-const INITIAL_STATE_REGISTRY = Dict{String, Function}(
+const INITIAL_STATE_REGISTRY = Dict{String,Function}(
     "blinker" => blinker,
     "blinker_wide" => blinker_wide,
     "triple_blinker" => triple_blinker,
