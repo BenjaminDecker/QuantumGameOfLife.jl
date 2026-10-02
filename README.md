@@ -119,14 +119,6 @@ julia> @time QuantumGameOfLife.start()
 julia> @time QuantumGameOfLife.start("--show --plot classical expect --distance 1 --rule 150")
 ```
 
-<br/>
-
-## Tests
-Run the test suite from the project environment
-```bash
-$ julia --project=. -e 'import Pkg; Pkg.test()'
-```
-
 ## References
 <a id="1">[1]</a> 
 Benjamin Decker. “Creating a Quantum Analogue to an Arbitrary Classical Elementary Cellular Automaton”. en. MA thesis. Technical University of Munich, 2024-10. URL: https://mediatum.ub.tum.de/1756463
