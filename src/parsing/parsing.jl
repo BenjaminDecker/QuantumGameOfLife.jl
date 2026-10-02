@@ -1,17 +1,17 @@
-const INITIAL_STATE_CHOICES = ["blinker", "blinker_wide", "triple_blinker", "alternating", "alternating_reversed", "single", "single_wide", "single_bottom", "single_top", "single_bottom_half", "single_top_half", "all_ket_0", "all_ket_1", "all_ket_0_but_outer", "all_ket_1_but_outer", "equal_superposition", "equal_superposition_but_outer_ket_0", "equal_superposition_but_outer_ket_1", "single_bottom_blinker_top", "random", "random_product"]
+const INITIAL_STATE_CHOICES = String.(keys(INITIAL_STATE_REGISTRY))
 const FILE_FORMAT_CHOICES = ["pdf", "png", "svg", "eps"]
 const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe", "autocorrelation"]
 const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"] #TODO tebd
 
-s = ArgParseSettings(
-    prog="main.jl",
+const settings = ArgParseSettings(
+    prog="cli.jl",
     description="A classical simulation of the quantum game of life",
     autofix_names=true,
     error_on_conflict=false,
     exit_after_help=false
 )
-add_arg_group!(s, "Setup")
-@add_arg_table! s begin
+add_arg_group!(settings, "Setup")
+@add_arg_table! settings begin
     "--num-cells"
     arg_type = Int
     default = 9
@@ -29,8 +29,8 @@ add_arg_group!(s, "Setup")
     help = "Create a superposition of all states given in --initial-states instead of calculating a time evolution for each one separately"
 end
 
-add_arg_group!(s, "Rule")
-@add_arg_table! s begin
+add_arg_group!(settings, "Rule")
+@add_arg_table! settings begin
     "--distance"
     arg_type = Int
     default = 1
@@ -48,8 +48,8 @@ add_arg_group!(s, "Rule")
     help = "Range of alive neighbors required for a flip, upper bound is included"
 end
 
-add_arg_group!(s, "Algorithm")
-@add_arg_table! s begin
+add_arg_group!(settings, "Algorithm")
+@add_arg_table! settings begin
     "--algorithm"
     arg_type = Algorithm
     default = Exact()
@@ -91,8 +91,8 @@ add_arg_group!(s, "Algorithm")
     help = "Set of operators used to build up the hamiltonian in the non-hermitian case."
 end
 
-add_arg_group!(s, "Plot")
-@add_arg_table! s begin
+add_arg_group!(settings, "Plot")
+@add_arg_table! settings begin
     "--show"
     action = :store_true
     help = "Open plots in their respective default applications"
@@ -129,8 +129,8 @@ add_arg_group!(s, "Plot")
     help = "The size of one unit length of the plot in px"
 end
 
-add_arg_group!(s, "Fragmentation Analysis")
-@add_arg_table! s begin
+add_arg_group!(settings, "Fragmentation Analysis")
+@add_arg_table! settings begin
     "--plot-eigval-vs-cbe"
     action = :store_true
     help = "Plot the eigenvalues vs. the center bipartite entropy of the hamiltonian's eigenvectors"
@@ -190,7 +190,13 @@ function ArgParse.parse_item(::Type{Algorithm}, x::AbstractString)
     throw(ArgumentError("Not a valid Algorithm"))
 end
 
-function get_args()
-    args = parse_args(s; as_symbols=true)
-    return isnothing(args) ? Nothing : Args(args)
+"""
+    parse_commandline()::Union{Args,Nothing}
+
+Parse `ARGS` using the configured ArgParse settings. Returns an `Args` object, or
+`nothing` when parsing was interrupted (for example after printing the `--help` message).
+"""
+function parse_commandline()::Union{Args,Nothing}
+    args = parse_args(settings; as_symbols=true)
+    return isnothing(args) ? nothing : Args(args)
 end

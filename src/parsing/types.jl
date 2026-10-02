@@ -59,6 +59,14 @@ name(::Sierpinski) = "Sierpinski"
 struct TEBD <: Algorithm end
 name(::TEBD) = "TEBD"
 
+"""
+    Args
+
+The parsed and derived simulation configuration. Besides the values coming directly from
+the command line, it also holds derived data such as the site indices (`site_inds`) and the
+constructed initial state `MPS` objects (`initial_states`). This is the single object that
+is threaded through Hamiltonian construction, time evolution, measuring and plotting.
+"""
 struct Args
     num_steps::Int
     distance::Int
@@ -106,7 +114,7 @@ function Args(args::Dict{Symbol,Any})::Args
         args[:step_size],
         site_inds,
         args[:initial_states],
-        [getfield(QuantumGameOfLife, Symbol(state_name))(site_inds) for state_name in args[:initial_states]],
+        [INITIAL_STATE_REGISTRY[state_name](site_inds) for state_name in args[:initial_states]],
         args[:superposition],
         args[:algorithm],
         args[:num_cells],

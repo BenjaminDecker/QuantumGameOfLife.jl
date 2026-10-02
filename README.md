@@ -10,14 +10,16 @@ Given some rule from the Wolfram Code, the translation into a quantum framework 
 ![](plots/plot.svg)
 
 ## Setup
-Before running the code for the first time, install all dependencies by running the instantiation script from the project directory
+This is a standard Julia package with its dependencies declared in `Project.toml`. Before
+running the code for the first time, instantiate the environment from the project directory
 
 ```bash
 $ cd QuantumGameOfLife.jl/
-$ julia instantiate.jl
+$ julia --project=. -e 'import Pkg; Pkg.instantiate()'
 ```
 
-The instantiation script is also called from the cli script to make sure everything is set up correctly every time.
+The `cli.jl` script also activates and instantiates the environment on every run, so
+setting it up by hand is only required when you want to work from the REPL.
 
 ## Usage
 List all available parameters with
@@ -99,9 +101,11 @@ To do so, make sure that your working directory is the project root directory an
 $ cd QuantumGameOfLife.jl/
 $ julia
 ```
-then, include the instantiation file and use the project.
+then activate the project environment and load the package.
 ```julia
-julia> include("instantiate.jl")
+julia> ]
+(QuantumGameOfLife) pkg> activate .
+
 julia> using QuantumGameOfLife
 ```
 <br/>
@@ -116,6 +120,12 @@ julia> @time QuantumGameOfLife.start("--show --plot classical expect --distance 
 ```
 
 <br/>
+
+## Tests
+Run the test suite from the project environment
+```bash
+$ julia --project=. -e 'import Pkg; Pkg.test()'
+```
 
 ## References
 <a id="1">[1]</a> 

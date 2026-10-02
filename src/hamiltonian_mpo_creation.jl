@@ -89,14 +89,16 @@ end
 
 
 """
-    build_MPO_hamiltonian(
-    site_inds::Vector{ITensors.Index{Int64}},
-    args::Args
-)::MPO
+    build_hamiltonian_mpo(site_inds::Vector{ITensors.Index{Int64}}, args::Args)::MPO
 
-TBW
+Build the Hamiltonian of the quantum game of life as an `MPO` acting on `site_inds`.
+
+For every cell, `local_opsum_tuple_list` generates the local operator summand determined by
+the Wolfram `rule`, the interaction `distance` and the selected `operator_set`. The
+resulting `OpSum` is converted to an `MPO`. If the resulting Hamiltonian is (numerically)
+hermitian, the time evolution is unitary and this is reported via the `Logging` macro.
 """
-function build_MPO_hamiltonian(
+function build_hamiltonian_mpo(
     site_inds::Vector{ITensors.Index{Int64}},
     args::Args
 )::MPO
@@ -109,10 +111,9 @@ function build_MPO_hamiltonian(
         end
     end
     mpo = MPO(os, site_inds)
-    check_if_hermitian_norm = norm(mpo - dag(swapprime(mpo, 0, 1)))
-    # println(local_opsum_tuple_list(args.distance + 1, args))
-    if check_if_hermitian_norm < 1e-5
-        println("Unitary!")
+    hermiticity_residual = norm(mpo - dag(swapprime(mpo, 0, 1)))
+    if hermiticity_residual < 1e-5
+        @info "The Hamiltonian is hermitian, the time evolution is unitary."
     end
     return mpo
 end

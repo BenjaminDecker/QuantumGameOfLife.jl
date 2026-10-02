@@ -1,12 +1,13 @@
 function evolve(::Exact, psi_0_vec::Vector{MPS}, H::MPO, args::Args)::Vector{Vector{MPS}}
     U_tensor = let
-        print("Calculating Time Evolution Operator...")
+        @info "Calculating time evolution operator..."
         t = args.step_size * pi / 2
-        exp(-im * contract(H) * t)
+        U = exp(-im * contract(H) * t)
+        @info "Done calculating time evolution operator."
+        U
     end
-    println("done")
 
-    results_vec = []
+    results_vec = Vector{Vector{MPS}}()
     for psi_0 in psi_0_vec
         results = [psi_0]
         sizehint!(results, args.num_steps)

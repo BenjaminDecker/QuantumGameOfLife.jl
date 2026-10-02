@@ -1,8 +1,3 @@
-struct LabeledPlot
-    label::String
-    data::Vector{Vector{Float64}}
-end
-
 function plot(
     measurements_vector::Vector{Dict{PlotType,Vector{Vector{Float64}}}},
     args::Args

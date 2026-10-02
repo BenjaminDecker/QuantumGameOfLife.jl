@@ -1,4 +1,4 @@
-function evolve(::TDVP1, psi_0_vec::Vector{MPS}, H::MPO, args)::Vector{Vector{MPS}}
+function evolve(::TDVP1, psi_0_vec::Vector{MPS}, H::MPO, args::Args)::Vector{Vector{MPS}}
     return [
         tdvp1(
             H,

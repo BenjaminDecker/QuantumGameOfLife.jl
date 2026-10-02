@@ -40,11 +40,11 @@ single_bottom(site_inds::Vector{ITensors.Index{Int64}})::MPS = single(site_inds,
 single_top(site_inds::Vector{ITensors.Index{Int64}})::MPS = single(site_inds, lastindex(site_inds))
 
 function single_bottom_half(site_inds::Vector{ITensors.Index{Int64}})::MPS
-    single(site_inds, Int(length(site_inds) / 4))
+    single(site_inds, length(site_inds) ÷ 4)
 end
 
 function single_top_half(site_inds::Vector{ITensors.Index{Int64}})::MPS
-    single(site_inds, Int(length(site_inds) - length(site_inds) / 4))
+    single(site_inds, length(site_inds) - length(site_inds) ÷ 4)
 end
 
 function all_ket_0(site_inds::Vector{ITensors.Index{Int64}})::MPS
@@ -97,3 +97,34 @@ function random_product(site_inds::Vector{ITensors.Index{Int64}})::MPS
     plist = map(x -> x ? "1" : "0", bitrand(length(site_inds)))
     MPS(site_inds, plist)
 end
+
+"""
+    INITIAL_STATE_REGISTRY::Dict{String,Function}
+
+Maps the name of each supported initial state (as accepted by the `--initial-states`
+command line option) to the function that builds the corresponding `MPS`. Each function
+takes a `Vector{ITensors.Index{Int64}}` of site indices as its only argument.
+"""
+const INITIAL_STATE_REGISTRY = Dict{String, Function}(
+    "blinker" => blinker,
+    "blinker_wide" => blinker_wide,
+    "triple_blinker" => triple_blinker,
+    "alternating" => alternating,
+    "alternating_reversed" => alternating_reversed,
+    "single" => single,
+    "single_wide" => single_wide,
+    "single_bottom" => single_bottom,
+    "single_top" => single_top,
+    "single_bottom_half" => single_bottom_half,
+    "single_top_half" => single_top_half,
+    "all_ket_0" => all_ket_0,
+    "all_ket_1" => all_ket_1,
+    "all_ket_0_but_outer" => all_ket_0_but_outer,
+    "all_ket_1_but_outer" => all_ket_1_but_outer,
+    "equal_superposition" => equal_superposition,
+    "equal_superposition_but_outer_ket_0" => equal_superposition_but_outer_ket_0,
+    "equal_superposition_but_outer_ket_1" => equal_superposition_but_outer_ket_1,
+    "single_bottom_blinker_top" => single_bottom_blinker_top,
+    "random" => random,
+    "random_product" => random_product,
+)

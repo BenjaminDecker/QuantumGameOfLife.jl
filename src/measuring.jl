@@ -39,17 +39,17 @@ function measure(
     states::Vector{MPS},
     args::Args
 )::Vector{Vector{Float64}}
-    states = Vector{Vector{Bool}}([measure(Rounded(), states[1])])
-    for step in 1:args.num_steps
-        last_state = states[step]
+    history::Vector{Vector{Bool}} = [measure(Rounded(), states[1])]
+    for _ in 1:args.num_steps
+        last_state = history[end]
         next_state = copy(last_state)
         for index in eachindex(next_state)
             conf_id = configuration_id(last_state, index, args)
             next_state[index] = (args.rule & 1 << conf_id) != 0
         end
-        push!(states, next_state)
+        push!(history, next_state)
     end
-    return Vector{Vector{Float64}}(states)
+    return Vector{Vector{Float64}}(history)
 end
 
 function measure(
@@ -96,17 +96,4 @@ function configuration_id(state::Vector{Bool}, index::Int, args::Args)::Int
         end
     end
     return id
-end
-
-function get_value(state::Vector{Bool}, index::Int, periodic::Bool)::Int
-    if !(index in eachindex(state)) && !periodic
-        return 0
-    end
-    num_cells = length(state)
-    if index < 1
-        index += num_cells
-    elseif index > num_cells
-        index -= num_cells
-    end
-    return Int(state[index])
 end
