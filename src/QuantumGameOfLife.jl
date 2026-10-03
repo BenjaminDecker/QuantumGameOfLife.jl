@@ -9,11 +9,14 @@ using DefaultApplication
 using TensorTimeSteps
 using Random
 using Logging
+using Dates
+using TOML
 
 import ArgParse: ArgParse, ArgParseSettings, parse_args, add_arg_group!, @add_arg_table!
 
 include("parsing/types.jl")
 include("parsing/initial_states.jl")
+include("parsing/config.jl")
 include("parsing/parsing.jl")
 
 include("utils.jl")
@@ -32,20 +35,22 @@ export start
 """
     start()
 
-Parse the command line arguments and run the simulation. Returns `nothing` without doing
-any work if the arguments could not be parsed (for example when `--help` was requested).
+Parse the command line arguments (or the given TOML config file) and run the simulation.
+Returns `nothing` without doing any work if the arguments could not be parsed (for example
+when `--help` was requested).
 """
 function start()
-    args = parse_commandline()
-    isnothing(args) && return nothing
-    start(args)
+    cfg = parse_commandline()
+    isnothing(cfg) && return nothing
+    start(Args(cfg))
 end
 
 """
     start(args::AbstractString)
 
 REPL convenience wrapper: split `args` on whitespace, treat the result as the command line
-arguments and run the simulation. For example `start("--show --rule 150")`.
+arguments and run the simulation. For example `start("--show --rule 150")` or
+`start("run.toml")` to start a run from a config file.
 """
 function start(args::AbstractString)
     empty!(ARGS)

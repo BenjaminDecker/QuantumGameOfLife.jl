@@ -22,7 +22,15 @@ The `cli.jl` script also activates and instantiates the environment on every run
 setting it up by hand is only required when you want to work from the REPL.
 
 ## Usage
-List all available parameters with
+Runs are configured with TOML config files. Start a run by passing a config file to the CLI:
+```bash
+$ julia cli.jl example.toml
+```
+All sections and options in a config file are optional; anything not set falls back to its default value. See [`example.toml`](example.toml) for a fully documented reference of every option.
+
+Runs can also still be started with command line options (see below). In that case, the effective configuration (given options plus defaults) is automatically written to a timestamped `run_config_*.toml` file in the plot directory, so the exact same run can be started later with `julia cli.jl <that file>`. Use `--write-config my_runs/name.toml` to write it to a specific path instead. If both a config file and command line options are given, the config file fully determines the run and the options are ignored.
+
+List all available command line options with
 ```bash
 $ julia cli.jl --help
 ```
@@ -110,13 +118,15 @@ julia> using QuantumGameOfLife
 ```
 <br/>
 
-Afterwards, you can use the same command line options as with the CLI by passing them to the start function. To see the effect, compare the runtimes of two consecutive executions of the same function.
+Afterwards, you can use the same command line options as with the CLI by passing them to the start function. You can also pass the path to a config file. To see the effect, compare the runtimes of two consecutive executions of the same function.
 ```julia
 julia> @time QuantumGameOfLife.start()
 
 julia> @time QuantumGameOfLife.start()
 
 julia> @time QuantumGameOfLife.start("--show --plot classical expect --distance 1 --rule 150")
+
+julia> @time QuantumGameOfLife.start("example.toml")
 ```
 
 ## References

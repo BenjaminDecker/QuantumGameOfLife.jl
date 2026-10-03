@@ -62,10 +62,11 @@ name(::TEBD) = "TEBD"
 """
     Args
 
-The parsed and derived simulation configuration. Besides the values coming directly from
-the command line, it also holds derived data such as the site indices (`site_inds`) and the
-constructed initial state `MPS` objects (`initial_states`). This is the single object that
-is threaded through Hamiltonian construction, time evolution, measuring and plotting.
+The parsed and derived simulation configuration. Besides the values coming from the command
+line or a TOML config file, it also holds derived data such as the site indices
+(`site_inds`) and the constructed initial state `MPS` objects (`initial_states`). This is
+the single object that is threaded through Hamiltonian construction, time evolution,
+measuring and plotting.
 """
 struct Args
     num_steps::Int

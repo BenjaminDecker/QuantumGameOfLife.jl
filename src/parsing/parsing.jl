@@ -3,24 +3,38 @@ const FILE_FORMAT_CHOICES = ["pdf", "png", "svg", "eps"]
 const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe", "autocorrelation"]
 const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"] #TODO tebd
 
+# Single source of truth for all option defaults, shared with the TOML config loader.
+const DEFAULTS = default_config()
+
 const settings = ArgParseSettings(
     prog="cli.jl",
-    description="A classical simulation of the quantum game of life",
+    description="A classical simulation of the quantum game of life. Start a run by giving a TOML config file (julia cli.jl run.toml). If command line options are used instead, the effective configuration is written to a timestamped config file so the run can be reproduced exactly.",
     autofix_names=true,
     error_on_conflict=false,
     exit_after_help=false
 )
+add_arg_group!(settings, "Config")
+@add_arg_table! settings begin
+    "config"
+    help = "Path to a TOML config file. If given, it fully determines the run and all other command line options are ignored."
+
+    "--write-config"
+    arg_type = String
+    default = ""
+    help = "Write the effective configuration to this path (only relevant when starting the run with command line options). Defaults to a timestamped file in the plot directory."
+end
+
 add_arg_group!(settings, "Setup")
 @add_arg_table! settings begin
     "--num-cells"
     arg_type = Int
-    default = 9
+    default = DEFAULTS[:num_cells]
     help = "The number of cells to use in the simulation. Depending on the algorithm used, the running time can scale exponentially(exact) or linearly(tdvp) with the number of cells."
 
     "--initial-states"
     arg_type = String
     nargs = '*'
-    default = String["blinker"]
+    default = DEFAULTS[:initial_states]
     range_tester = x -> x in INITIAL_STATE_CHOICES
     help = "Initial State. If more than one is given, an equal superposition of the states is used. Choices are: " * string(INITIAL_STATE_CHOICES)
 
@@ -33,12 +47,12 @@ add_arg_group!(settings, "Rule")
 @add_arg_table! settings begin
     "--distance"
     arg_type = Int
-    default = 1
+    default = DEFAULTS[:distance]
     help = "The interaction distance to the left and right of a cell. This controls the range of local operators in the Hamiltonian. For only nearest neighbor interactions, use 1."
 
     "--rule"
     arg_type = Int
-    default = 150
+    default = DEFAULTS[:rule]
 
     "--activation-interval"
     arg_type = Int
@@ -52,12 +66,12 @@ add_arg_group!(settings, "Algorithm")
 @add_arg_table! settings begin
     "--algorithm"
     arg_type = Algorithm
-    default = Exact()
+    default = DEFAULTS[:algorithm]
     help = "The algorithm used for the time evolution. 'exact' is fast and most accurate for a small numbers of cells. Choices are: " * string(ALGORITHM_CHOICES)
 
     "--num-steps"
     arg_type = Int
-    default = 100
+    default = DEFAULTS[:num_steps]
     help = "Number of time steps to simulate"
 
     "--periodic-boundaries"
@@ -66,27 +80,27 @@ add_arg_group!(settings, "Algorithm")
 
     "--step-size"
     arg_type = Float64
-    default = 1.0
+    default = DEFAULTS[:step_size]
     help = "Size of one time step. The time step size is calculated as (STEP_SIZE * pi/2)"
 
     "--sweeps-per-time-step"
     arg_type = Int
-    default = 100
+    default = DEFAULTS[:sweeps_per_time_step]
     help = "The number of sweeps to perform per time step. Is ignored if the chosen algorithm is 'exact'."
 
     "--max-bond-dim"
     arg_type = Int
-    default = 32
+    default = DEFAULTS[:max_bond_dim]
     help = "The maximum that a bond of the MPS is allowed to grow to during simulation. Is ignored if the chosen algorithm is not 'tdvp'."
 
     "--svd-epsilon"
     arg_type = Float64
-    default = 1e-10
+    default = DEFAULTS[:svd_epsilon]
     help = "A measure of accuracy for the truncation step after splitting a mps tensor. This parameter controls how quickly the bond dimension of the mps grows during the simulation. Lower means more accurate, but slower."
 
     "--operator-set"
     arg_type = Int
-    default = 1
+    default = DEFAULTS[:operator_set]
     range_tester = x -> x in 1:4
     help = "Set of operators used to build up the hamiltonian in the non-hermitian case."
 end
@@ -100,18 +114,18 @@ add_arg_group!(settings, "Plot")
     "--plot"
     arg_type = PlotType
     nargs = '*'
-    default = [ExpectationValue()]
+    default = DEFAULTS[:plot]
     help = "Plots to create. Choices are: " * string(PLOTS_CHOICES)
 
     "--plotting-file-path"
     arg_type = String
-    default = "plots"
+    default = DEFAULTS[:plotting_file_path]
     help = "Write files to a directory at the specified relative location"
 
     "--file-formats"
     arg_type = String
     nargs = '*'
-    default = String["pdf"]
+    default = DEFAULTS[:file_formats]
     range_tester = x -> x in FILE_FORMAT_CHOICES
     help = "File formats for plots. Choices are: " * string(FILE_FORMAT_CHOICES)
 
@@ -125,7 +139,7 @@ add_arg_group!(settings, "Plot")
 
     "--px-per-unit"
     arg_type = Float64
-    default = 2.0
+    default = DEFAULTS[:px_per_unit]
     help = "The size of one unit length of the plot in px"
 end
 
@@ -145,58 +159,53 @@ add_arg_group!(settings, "Fragmentation Analysis")
 end
 
 function ArgParse.parse_item(::Type{PlotType}, x::AbstractString)
-    x = lowercase(x)
-    if x in ["classic", "classical"]
-        return Classical()
-    end
-    if x in ["expect", "expectation", "expectation_value", "expectation-value"]
-        return ExpectationValue()
-    end
-    if x in ["sse", "single_site_entropy", "single-site-entropy"]
-        return SingleSiteEntropy()
-    end
-    if x in ["round", "rounded"]
-        return Rounded()
-    end
-    if x in ["bond_dim", "bond_dims", "bond_dimension", "bond_dimensions", "bond-dim", "bond-dims", "bond-dimension", "bond-dimensions"]
-        return BondDimensions()
-    end
-    if x in ["cbe", "center_bipartite_entropy", "center-bipartite-entropy"]
-        return CenterBipartiteEntropy()
-    end
-    if x in ["autocorrelation"]
-        return Autocorrelation()
-    end
-    throw(ArgumentError("Not a valid plot type"))
+    return parse_plot_type(x)
 end
 
 function ArgParse.parse_item(::Type{Algorithm}, x::AbstractString)
-    x = lowercase(x)
-    if x == "exact"
-        return Exact()
-    end
-    if x == "tdvp1"
-        return TDVP1()
-    end
-    if x == "tdvp2"
-        return TDVP2()
-    end
-    if x == "sierpinski" || x == "sierpiński"
-        return Sierpinski()
-    end
-    if x == "tebd"
-        return TEBD()
-    end
-    throw(ArgumentError("Not a valid Algorithm"))
+    return parse_algorithm(x)
 end
 
 """
-    parse_commandline()::Union{Args,Nothing}
+    parse_commandline()::Union{Dict{Symbol,Any},Nothing}
 
-Parse `ARGS` using the configured ArgParse settings. Returns an `Args` object, or
-`nothing` when parsing was interrupted (for example after printing the `--help` message).
+Parse `ARGS` using the configured ArgParse settings and return the effective configuration
+as a normalized dictionary that can be passed to the `Args` constructor or written to a
+config file with `write_run_config`. Returns `nothing` when parsing was interrupted (for
+example after printing the `--help` message).
+
+If a config file is given on the command line, it fully determines the run and any other
+command line options are ignored (with a warning). Otherwise, the effective configuration is
+written to a config file so that the exact same run can be started later.
 """
-function parse_commandline()::Union{Args,Nothing}
-    args = parse_args(settings; as_symbols=true)
-    return isnothing(args) ? nothing : Args(args)
+function parse_commandline()::Union{Dict{Symbol,Any},Nothing}
+    parsed = parse_args(settings; as_symbols=true)
+    isnothing(parsed) && return nothing
+
+    config_file = pop!(parsed, :config)
+    config_file = isnothing(config_file) ? "" : String(config_file)
+    write_config_path = String(pop!(parsed, :write_config))
+
+    cfg = if !isempty(config_file)
+        ignored = _explicit_cli_options(parsed)
+        if !isempty(ignored)
+            @warn "Ignoring command line options because a config file was given: $(join(ignored, ", "))"
+        end
+        load_config(config_file)
+    else
+        path = write_run_config(parsed; path=isempty(write_config_path) ? nothing : write_config_path)
+        @info "Wrote the effective configuration to '$path'. Start the exact same run with: julia cli.jl $path"
+        normalize_config(parsed)
+    end
+    return cfg
+end
+
+"""
+    _explicit_cli_options(parsed::Dict{Symbol,Any})::Vector{Symbol}
+
+Return the names of all options in `parsed` (as returned by ArgParse) whose value differs
+from the default value, i.e. the ones the user explicitly set.
+"""
+function _explicit_cli_options(parsed::Dict{Symbol,Any})::Vector{Symbol}
+    return [key for (key, value) in parsed if get(DEFAULTS, key, nothing) != value]
 end

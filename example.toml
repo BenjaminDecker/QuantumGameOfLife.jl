@@ -1,0 +1,90 @@
+# Example run configuration for QuantumGameOfLife.jl.
+#
+# Start a run with:  julia cli.jl example.toml
+#
+# All sections and all options are optional. Anything that is not set here falls back to
+# its default value (shown below). Runs started with command line options instead write
+# their effective configuration to such a file, so every run can be reproduced exactly.
+
+[setup]
+# Number of cells in the simulation. Runtime scales exponentially (exact) or linearly
+# (tdvp) with this number.
+num_cells = 9
+
+# Initial state(s), see QuantumGameOfLife.INITIAL_STATE_CHOICES for the full list.
+initial_states = ["blinker"]
+
+# Instead of evolving each initial state separately, evolve an equal superposition of all
+# of them.
+superposition = false
+
+[rule]
+# Interaction distance to the left and right of a cell (range of local operators in the
+# Hamiltonian). Use 1 for nearest neighbor interactions only.
+distance = 1
+
+# The elementary cellular automaton rule.
+rule = 150
+
+# Alternative to `rule`: range of alive neighbors required for a flip, upper bound
+# included. Set to [] to use `rule` instead.
+activation_interval = []
+
+[algorithm]
+# Time evolution algorithm: "exact", "tdvp1", "tdvp2" or "sierpinski".
+# 'exact' is fast and most accurate for a small number of cells.
+algorithm = "exact"
+
+# Number of time steps to simulate.
+num_steps = 100
+
+# Use periodic instead of open boundary conditions.
+periodic_boundaries = false
+
+# Size of one time step. The time step size is calculated as (step_size * pi/2).
+step_size = 1.0
+
+# Number of sweeps per time step. Ignored if algorithm is "exact".
+sweeps_per_time_step = 100
+
+# Maximum bond dimension the MPS may grow to. Ignored if algorithm is not tdvp.
+max_bond_dim = 32
+
+# Accuracy of the truncation step after splitting an MPS tensor. Lower is more accurate
+# but slower.
+svd_epsilon = 1.0e-10
+
+# Set of operators used to build the hamiltonian in the non-hermitian case (1 to 4).
+operator_set = 1
+
+[plot]
+# Open plots in their respective default applications.
+show = false
+
+# Plots to create: "classical", "expect", "sse", "rounded", "bond_dims", "cbe",
+# "autocorrelation".
+plot = ["expect"]
+
+# Write plot files to this directory (relative to the working directory).
+plotting_file_path = "plots"
+
+# File formats for plots: "pdf", "png", "svg", "eps".
+file_formats = ["pdf"]
+
+# Plot width in px. If this option is omitted, the plot width grows with num_steps such
+# that heatmap datapoints look like squares. A good default value is 600.
+# width = 600
+
+# Show the page entropy value in cbe plots.
+page_entropy = false
+
+# Size of one unit length of the plot in px.
+px_per_unit = 2.0
+
+[fragmentation_analysis]
+# Plot the eigenvalues vs. the center bipartite entropy of the hamiltonian's eigenvectors.
+plot_eigval_vs_cbe = false
+
+# Plot the fragment sizes of the Hamiltonian. Sizes are plotted up to periodic symmetry
+# if periodic boundary conditions are used.
+plot_fragment_sizes = false
