@@ -2,46 +2,75 @@ abstract type PlotType end
 
 abstract type HeatmapContinuous <: PlotType end
 struct ExpectationValue <: HeatmapContinuous end
-filename_identifier(::ExpectationValue) = "expect"
-name(::ExpectationValue) = "Expectation Value"
-label(::ExpectationValue) = "Expectation\nValue"
-ordering_index(::ExpectationValue) = 2
 struct SingleSiteEntropy <: HeatmapContinuous end
-filename_identifier(::SingleSiteEntropy) = "sse"
-name(::SingleSiteEntropy) = "Single Site Entropy"
-label(::SingleSiteEntropy) = "Single Site\nEntropy"
-ordering_index(::SingleSiteEntropy) = 3
-
 
 abstract type HeatmapDiscrete <: PlotType end
 struct Rounded <: HeatmapDiscrete end
-filename_identifier(::Rounded) = "rounded"
-name(::Rounded) = "Rounded"
-label(::Rounded) = "Rounded"
-ordering_index(::Rounded) = 4
 struct BondDimensions <: HeatmapDiscrete end
-filename_identifier(::BondDimensions) = "bond_dims"
-name(::BondDimensions) = "Bond Dimensions"
-label(::BondDimensions) = "Bond\nDimension"
-ordering_index(::BondDimensions) = 5
 struct Classical <: HeatmapDiscrete end
-filename_identifier(::Classical) = "classical"
-name(::Classical) = "Classical"
-label(::Classical) = "Classical"
-ordering_index(::Classical) = 1
 
 abstract type LinePlot <: PlotType end
 struct CenterBipartiteEntropy <: LinePlot end
-filename_identifier(::CenterBipartiteEntropy) = "cbe"
-name(::CenterBipartiteEntropy) = "Center Bipartite Entropy"
-label(::CenterBipartiteEntropy) = "Center\nBipartite\nEntropy"
-ordering_index(::CenterBipartiteEntropy) = 6
 struct Autocorrelation <: LinePlot end
-filename_identifier(::Autocorrelation) = "autocorrelation"
-name(::Autocorrelation) = "Autocorrelation"
-label(::Autocorrelation) = "Autocorrelation"
-ordering_index(::Autocorrelation) = 7
 
+"""
+    PlotSpec
+
+Everything the rest of the package needs to know about a `PlotType` that is not encoded in
+its dispatch behavior: the file-name identifier (`id`), the human-readable title (`name`) and
+axis label (`label`), and the alternative spellings accepted on the command line and in a
+config file (`aliases`).
+"""
+struct PlotSpec
+    id::String
+    name::String
+    label::String
+    aliases::Vector{String}
+end
+
+# Single source of truth for the available plot types. The order of this vector is the order
+# plots are drawn in (`Base.isless`); the metadata accessors, `PLOTS_CHOICES`, the help
+# strings and command line / config parsing are all derived from it. Add a plot type by
+# adding one row here and a matching `measure` method (and a `render_row!` method in
+# plotting.jl if it needs a new kind of axis).
+const PLOT_TYPES = [
+    Classical => PlotSpec(
+        "classical", "Classical", "Classical",
+        ["classic"]),
+    ExpectationValue => PlotSpec(
+        "expect", "Expectation Value", "Expectation\nValue",
+        ["expectation", "expectation_value", "expectation-value"]),
+    SingleSiteEntropy => PlotSpec(
+        "sse", "Single Site Entropy", "Single Site\nEntropy",
+        ["single_site_entropy", "single-site-entropy"]),
+    Rounded => PlotSpec(
+        "rounded", "Rounded", "Rounded",
+        ["round"]),
+    BondDimensions => PlotSpec(
+        "bond_dims", "Bond Dimensions", "Bond\nDimension",
+        ["bond_dim", "bond_dimension", "bond_dimensions",
+         "bond-dim", "bond-dims", "bond-dimension", "bond-dimensions"]),
+    CenterBipartiteEntropy => PlotSpec(
+        "cbe", "Center Bipartite Entropy", "Center\nBipartite\nEntropy",
+        ["center_bipartite_entropy", "center-bipartite-entropy"]),
+    Autocorrelation => PlotSpec(
+        "autocorrelation", "Autocorrelation", "Autocorrelation",
+        String[]),
+]
+
+const _PLOT_INDEX = Dict{DataType,Int}(T => i for (i, (T, _)) in enumerate(PLOT_TYPES))
+_plot_spec(p::PlotType) = PLOT_TYPES[_PLOT_INDEX[typeof(p)]].second
+
+filename_identifier(p::PlotType) = _plot_spec(p).id
+name(p::PlotType) = _plot_spec(p).name
+label(p::PlotType) = _plot_spec(p).label
+ordering_index(p::PlotType) = _PLOT_INDEX[typeof(p)]
+
+# Maps every accepted spelling (canonical id or alias) to the corresponding PlotType.
+const PLOT_LOOKUP = Dict{String,PlotType}(
+    alias => T() for (T, spec) in PLOT_TYPES for alias in [spec.id; spec.aliases])
+
+const PLOTS_CHOICES = [spec.id for (_, spec) in PLOT_TYPES]
 
 Base.isless(a::PlotType, b::PlotType) = ordering_index(a) < ordering_index(b)
 
@@ -58,6 +87,34 @@ struct Sierpinski <: Algorithm end
 name(::Sierpinski) = "Sierpinski"
 struct TEBD <: Algorithm end
 name(::TEBD) = "TEBD"
+
+"""
+    AlgorithmSpec
+
+The command line / config file spelling(s) of an `Algorithm` (`id` and `aliases`) and whether
+it is `advertised`, i.e. listed in the help and choices.
+"""
+struct AlgorithmSpec
+    id::String
+    aliases::Vector{String}
+    advertised::Bool
+end
+
+# Single source of truth for the algorithms that can be named; `parse_algorithm` and
+# `ALGORITHM_CHOICES` are derived from it. TEBD parses but is not advertised because it is
+# not implemented yet (see `algorithms/tebd.jl`).
+const ALGORITHMS = [
+    Exact()      => AlgorithmSpec("exact", String[], true),
+    TDVP1()      => AlgorithmSpec("tdvp1", String[], true),
+    TDVP2()      => AlgorithmSpec("tdvp2", String[], true),
+    Sierpinski() => AlgorithmSpec("sierpinski", ["sierpiński"], true),
+    TEBD()       => AlgorithmSpec("tebd", String[], false),
+]
+
+const ALGORITHM_LOOKUP = Dict{String,Algorithm}(
+    alias => a for (a, spec) in ALGORITHMS for alias in [spec.id; spec.aliases])
+
+const ALGORITHM_CHOICES = [spec.id for (_, spec) in ALGORITHMS if spec.advertised]
 
 """
     Args

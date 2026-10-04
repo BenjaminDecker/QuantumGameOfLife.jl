@@ -1,7 +1,6 @@
 const INITIAL_STATE_CHOICES = String.(keys(INITIAL_STATE_REGISTRY))
 const FILE_FORMAT_CHOICES = ["pdf", "png", "svg", "eps"]
-const PLOTS_CHOICES = ["classical", "expect", "sse", "rounded", "bond_dims", "cbe", "autocorrelation"]
-const ALGORITHM_CHOICES = ["exact", "tdvp1", "tdvp2", "sierpinski"] #TODO tebd
+# PLOTS_CHOICES and ALGORITHM_CHOICES are derived from the registries in types.jl.
 
 # Single source of truth for all option defaults, shared with the TOML config loader.
 const DEFAULTS = default_config()

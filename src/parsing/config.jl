@@ -52,49 +52,17 @@ function default_config()::Dict{Symbol,Any}
 end
 
 function parse_plot_type(x::AbstractString)::PlotType
-    x = lowercase(x)
-    if x in ["classic", "classical"]
-        return Classical()
+    key = lowercase(x)
+    return get(PLOT_LOOKUP, key) do
+        throw(ArgumentError("Not a valid plot type: '$key'. Choices are: " * string(PLOTS_CHOICES)))
     end
-    if x in ["expect", "expectation", "expectation_value", "expectation-value"]
-        return ExpectationValue()
-    end
-    if x in ["sse", "single_site_entropy", "single-site-entropy"]
-        return SingleSiteEntropy()
-    end
-    if x in ["round", "rounded"]
-        return Rounded()
-    end
-    if x in ["bond_dim", "bond_dims", "bond_dimension", "bond_dimensions", "bond-dim", "bond-dims", "bond-dimension", "bond-dimensions"]
-        return BondDimensions()
-    end
-    if x in ["cbe", "center_bipartite_entropy", "center-bipartite-entropy"]
-        return CenterBipartiteEntropy()
-    end
-    if x in ["autocorrelation"]
-        return Autocorrelation()
-    end
-    throw(ArgumentError("Not a valid plot type: '$x'. Choices are: " * string(PLOTS_CHOICES)))
 end
 
 function parse_algorithm(x::AbstractString)::Algorithm
-    x = lowercase(x)
-    if x == "exact"
-        return Exact()
+    key = lowercase(x)
+    return get(ALGORITHM_LOOKUP, key) do
+        throw(ArgumentError("Not a valid algorithm: '$key'. Choices are: " * string(ALGORITHM_CHOICES)))
     end
-    if x == "tdvp1"
-        return TDVP1()
-    end
-    if x == "tdvp2"
-        return TDVP2()
-    end
-    if x == "sierpinski" || x == "sierpiński"
-        return Sierpinski()
-    end
-    if x == "tebd"
-        return TEBD()
-    end
-    throw(ArgumentError("Not a valid algorithm: '$x'. Choices are: " * string(ALGORITHM_CHOICES)))
 end
 
 # Value checking and conversion for the values coming from a TOML file.

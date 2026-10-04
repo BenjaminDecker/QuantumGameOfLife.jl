@@ -1,9 +1,60 @@
+# Draws one measurement (one row of the figure) and returns its axis. Dispatches directly on
+# the abstract kind of the plot type so each kind of axis lives in one place. The merged
+# colorbar for continuous heatmaps is handled by `plot` (it spans several rows).
+function render_row!(f, i, type::HeatmapDiscrete, data, ::Args)
+    ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
+    num_categories = max(2, Int(maximum(maximum.(data))) + 1)
+    cmap = cgrad(:inferno, num_categories; categorical=true)
+    heatmap!(
+        ax,
+        0:(length(data)-1),
+        1:(length(data[1])),
+        transpose(reduce(hcat, data)),
+        colormap=cmap,
+        colorrange=(0, num_categories - 1)
+    )
+    pos = 1 / (2 * num_categories)
+    Colorbar(
+        f[i, 2],
+        colormap=cmap,
+        ticks=([pos, 1 - pos], ["0", string(num_categories - 1)]),
+    )
+    return ax
+end
+
+function render_row!(f, i, type::LinePlot, data, args::Args)
+    S_max = (args.num_cells * log(2) - 1) / 2
+    ax = Axis(f[i, 1], limits=((-0.5, length(data) - 0.5), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
+    if args.page_entropy
+        hlines!(S_max; color=:red, label="page entropy")
+        axislegend(ax, position=:rb)
+    end
+    _ = lines!(
+        ax,
+        0:args.num_steps,
+        flatten(data),
+        linewidth=2
+    )
+    return ax
+end
+
+function render_row!(f, i, type::HeatmapContinuous, data, ::Args)
+    ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
+    _ = heatmap!(
+        ax,
+        0:(length(data)-1),
+        1:(length(data[1])),
+        transpose(reduce(hcat, data)),
+        colormap=:inferno,
+    )
+    return ax
+end
+
+
 function plot(
     measurements_vector::Vector{Dict{PlotType,Vector{Vector{Float64}}}},
     args::Args
 )
-    S_max = (args.num_cells * log(2) - 1) / 2
-
     for (j, measurements) in enumerate(measurements_vector)
 
         measurements_sorted = sort(collect(measurements), by=x -> x[1])
@@ -11,61 +62,16 @@ function plot(
         width = @something args.width 600
         f = Figure(size=(width, width))
 
-
-        axis_ids_of_HeatmapContinuous = []
         axes::Vector{Makie.Axis} = []
-
+        continuous_rows = Int[]
         for (i, (type, data)) in enumerate(measurements_sorted)
-
-            if isa(type, HeatmapDiscrete)
-                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
-                num_categories = max(2, Int(maximum(maximum.(data))) + 1)
-                cmap = cgrad(:inferno, num_categories; categorical=true)
-                push!(axes, ax)
-                heatmap!(
-                    ax,
-                    0:(length(data)-1),
-                    1:(length(data[1])),
-                    transpose(reduce(hcat, data)),
-                    colormap=cmap,
-                    colorrange=(0, num_categories - 1)
-                )
-                pos = 1 / (2 * num_categories)
-                Colorbar(
-                    f[i, 2],
-                    colormap=cmap,
-                    ticks=([pos, 1 - pos], ["0", string(num_categories - 1)]),
-                )
-            elseif isa(type, LinePlot)
-                ax = Axis(f[i, 1], limits=((-0.5, length(data) - 0.5), (0, nothing)), ylabel=label(type), yticks=0:ceil(S_max))
-                if args.page_entropy
-                    hlines!(S_max; color=:red, label="page entropy")
-                    axislegend(ax, position=:rb)
-                end
-                push!(axes, ax)
-                data = flatten(data)
-                _ = lines!(
-                    ax,
-                    0:args.num_steps,
-                    data,
-                    linewidth=2
-                )
-            else
-                ax = Axis(f[i, 1], ylabel=label(type), yticks=[1; length(data[1])])
-                push!(axes, ax)
-                _ = heatmap!(
-                    ax,
-                    0:(length(data)-1),
-                    1:(length(data[1])),
-                    transpose(reduce(hcat, data)),
-                    colormap=:inferno,
-                )
-                push!(axis_ids_of_HeatmapContinuous, i)
-            end
+            push!(axes, render_row!(f, i, type, data, args))
+            type isa HeatmapContinuous && push!(continuous_rows, i)
         end
-        if !isempty(axis_ids_of_HeatmapContinuous)
+
+        if !isempty(continuous_rows)
             Colorbar(
-                f[minimum(axis_ids_of_HeatmapContinuous):maximum(axis_ids_of_HeatmapContinuous), 2],
+                f[minimum(continuous_rows):maximum(continuous_rows), 2],
                 colormap=:inferno
             )
         end
